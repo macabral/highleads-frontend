@@ -1,0 +1,17 @@
+html {
+    font-family: 'Open Sans';
+    font-size: 0.9em;
+}
+
+.cabec {
+    margin-top: 10px;
+    display: block;
+    background-color:lightsteelblue;
+    padding: 10px;
+    border-radius: 10px;
+    color: white;
+}
+.qrcode {
+    background-color: rgba(195, 147, 251, 0.863);
+    color: white;
+}
