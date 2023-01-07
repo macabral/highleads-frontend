@@ -78,30 +78,16 @@
       <b-form>
         <b-row>
           <b-col cols="12" md="12" sm="12">
-            <b-form-group label="Página">
+            <b-form-group label="Nome">
               <b-form-input
-                v-model="rowSelected.pagina"
+                v-model="rowSelected.nome"
                 size="sm"
                 required
               />
             </b-form-group>
-            <b-form-group label="Responsável">
-              <b-form-input
-                v-model="rowSelected.responsavel"
-                size="sm"
-                required
-              />
-            </b-form-group>
-            <b-form-group label="Emails">
+            <b-form-group label="Email">
               <b-form-input
                 v-model="rowSelected.email"
-                size="sm"
-                required
-              />
-            </b-form-group>
-            <b-form-group label="Telefone">
-              <b-form-input
-                v-model="rowSelected.telefone"
                 size="sm"
                 required
               />
@@ -122,7 +108,7 @@
     <b-modal id="modal-excluir" title="Excluir" hide-footer>
       <p>
         Confirma excluir {{ pageName }}?<br>
-        <b>{{ rowSelected.pagina }}</b>
+        <b>{{ rowSelected.nome }}</b>
       </p>
       <div class="text-right">
         <b-button class="mt-3" variant="primary" @click="excluirItem(rowSelected.id)">
@@ -140,11 +126,11 @@
 import * as XLSX from 'xlsx'
 
 export default {
-  name: 'SitesPage',
+  name: 'UsuariosPage',
   data () {
     return {
-      pageName: 'Sites (landing pages)',
-      url: '/v1/sites',
+      pageName: 'Usuários',
+      url: '/v1/usuarios',
       token: '',
       showAlert: false,
       showErro: false,
@@ -154,16 +140,24 @@ export default {
       items: [],
       fields: [
         {
-          key: 'pagina',
+          key: 'nome',
           sortable: true,
-          label: 'Página',
+          label: 'Nome',
+          tdClass: 'tbvertical'
+        },
+        {
+          key: 'email',
+          sortable: true,
+          label: 'email',
           tdClass: 'tbvertical'
         },
         { key: 'actions', label: 'Ação' }
       ],
       row: {
         _id: 0,
-        pagina: ''
+        nome: '',
+        email: '',
+        password: ''
       },
       rowSelected: {},
       re: /^(?=[a-zA-Z0-9@._%+-]{6,254}$)[a-zA-Z0-9._%+-]{1,64}@(?:[a-zA-Z0-9-]{1,63}\.){1,8}[a-zA-Z]{2,63}$/
@@ -210,20 +204,20 @@ export default {
     },
     // -------------------------------------------------------------------------------------- editar
     editar (item) {
+      this.showAlert = false
+      this.showErro = false
       this.rowSelected = item
       this.$root.$emit('bv::show::modal', 'modal-incluir', '#btnShow')
     },
     // -------------------------------------------------------------------------------------- salvar
     salvar () {
-      if (this.rowSelected.pagina === '') {
-        return
-      }
       if (!this.re.test(String(this.rowSelected.email).toLowerCase())) {
         this.mensagemErro = 'Verifique o email informado.'
         this.showErro = true
         return
       }
       if (this.rowSelected._id === 0) {
+        this.rowSelected.password = 'XXX'
         this.$axios.$post(this.url, this.rowSelected, { headers: { Authorization: 'Bearer ' + this.token } })
           .then((ret) => {
             this.items = ret
@@ -287,7 +281,7 @@ export default {
         this.registros()
       } else {
         this.carregando = true
-        this.$axios.$get(this.url + '-search?site=' + this.procurar, { headers: { Authorization: 'Bearer ' + this.token } })
+        this.$axios.$get(this.url + '-search?search=' + this.procurar, { headers: { Authorization: 'Bearer ' + this.token } })
           .then((ret) => {
             this.items = ret
             this.carregando = false

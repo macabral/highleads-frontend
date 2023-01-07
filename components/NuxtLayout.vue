@@ -12,29 +12,21 @@
           <b-nav-item href="/painel" to="/painel">
             Painel de Controle
           </b-nav-item>
-          <b-nav-item-dropdown right>
-            <!-- Using 'button-content' slot -->
-            <template #button-content>
-              <em>Veículos</em>
-            </template>
-            <!-- <b-dropdown-item href="/liberacao/entrada" to="/liberacao/entrada">
-              Entrada/Saída de Veículos
-            </b-dropdown-item> -->
-            <b-dropdown-item href="/cadastros/registro" to="/cadastros/registro">
-              Registro de Veículos
-            </b-dropdown-item>
-            <b-dropdown-item href="/liberacao/consulta" to="/liberacao/consulta">
-              Consulta Movimento
-            </b-dropdown-item>
-          </b-nav-item-dropdown>
 
-          <b-nav-item-dropdown v-if="isAdmin == true" right>
+          <b-nav-item href="/contatos" to="/contatos">
+            Contatos
+          </b-nav-item>
+
+          <b-nav-item-dropdown right>
             <!-- Using 'button-content' slot -->
             <template #button-content>
               <em>Cadastros</em>
             </template>
             <b-dropdown-item href="/cadastros/sites" to="/cadastros/sites">
               Sites (landing Pages)
+            </b-dropdown-item>
+            <b-dropdown-item href="/cadastros/usuarios" to="/cadastros/usuarios">
+              Usuários
             </b-dropdown-item>
           </b-nav-item-dropdown>
         </b-navbar-nav>

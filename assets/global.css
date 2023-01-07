@@ -8,7 +8,7 @@ html {
     display: block;
     background-color:lightsteelblue;
     padding: 10px;
-    border-radius: 10px;
+    border-radius: 3px;
     color: white;
 }
 .qrcode {

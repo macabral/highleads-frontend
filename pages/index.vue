@@ -196,7 +196,7 @@ export default {
       const url = '/v1/envia-codigo?email=' + email
       this.$axios.$get(url)
         .then((ret) => {
-          this.mensagemErro = 'O Código de Confirmação foi encaminhado para o seu email. O email pode demorar até 10 minutos para ser entregue.'
+          this.mensagemErro = 'O Código de Confirmação foi encaminhado para o seu email.'
           this.showAlert = true
         })
         .catch(() => {
