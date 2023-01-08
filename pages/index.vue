@@ -165,6 +165,8 @@ export default {
         .then((ret) => {
           this.$store.commit('usuarioEmail', login.email)
           this.$store.commit('token', ret.token)
+          this.$store.commit('usuarioEmail', login.email)
+          this.$store.commit('nomeUsuario', ret.nome)
           this.$router.push('/painel')
         })
         .catch(() => {

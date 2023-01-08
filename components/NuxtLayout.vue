@@ -25,6 +25,9 @@
             <b-dropdown-item href="/cadastros/sites" to="/cadastros/sites">
               Sites (landing Pages)
             </b-dropdown-item>
+            <b-dropdown-item href="/cadastros/listanegra" to="/cadastros/listanegra">
+              Lista Negra
+            </b-dropdown-item>
             <b-dropdown-item href="/cadastros/usuarios" to="/cadastros/usuarios">
               Usuários
             </b-dropdown-item>
@@ -68,10 +71,7 @@ export default {
     }
   },
   mounted () {
-    this.nomeUsuario = this.$store.state.nomeUsuario
-    this.isRecepcao = this.$store.state.isRecepcao
-    this.isAdmin = this.$store.state.isAdmin
-    this.clinica = this.$store.state.clinica
+    this.nomeUsuario = this.$store.state.usuarioEmail
   },
   methods: {
   }

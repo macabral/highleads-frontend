@@ -80,16 +80,9 @@
       <b-form>
         <b-row>
           <b-col cols="12" md="12" sm="12">
-            <b-form-group label="Nome">
-              <b-form-input
-                v-model="rowSelected.nome"
-                size="sm"
-                required
-              />
-            </b-form-group>
             <b-form-group label="Email">
               <b-form-input
-                v-model="rowSelected.email"
+                v-model="rowSelected.texto"
                 size="sm"
                 required
               />
@@ -110,7 +103,7 @@
     <b-modal id="modal-excluir" title="Excluir" hide-footer>
       <p>
         Confirma excluir {{ pageName }}?<br>
-        <b>{{ rowSelected.nome }}</b>
+        <b>{{ rowSelected.texto }}</b>
       </p>
       <div class="text-right">
         <b-button class="mt-3" variant="primary" @click="excluirItem(rowSelected.id)">
@@ -128,11 +121,11 @@
 import * as XLSX from 'xlsx'
 
 export default {
-  name: 'UsuariosPage',
+  name: 'ListanegraPage',
   data () {
     return {
-      pageName: 'Usuários',
-      url: '/v1/usuarios',
+      pageName: 'Lista Negra',
+      url: '/v1/blacklist',
       token: '',
       procurar: '',
       showAlert: false,
@@ -143,13 +136,7 @@ export default {
       items: [],
       fields: [
         {
-          key: 'nome',
-          sortable: true,
-          label: 'Nome',
-          tdClass: 'tbvertical'
-        },
-        {
-          key: 'email',
+          key: 'texto',
           sortable: true,
           label: 'email',
           tdClass: 'tbvertical'
@@ -158,9 +145,7 @@ export default {
       ],
       row: {
         _id: 0,
-        nome: '',
-        email: '',
-        password: ''
+        texto: ''
       },
       rowSelected: {},
       re: /^(?=[a-zA-Z0-9@._%+-]{6,254}$)[a-zA-Z0-9._%+-]{1,64}@(?:[a-zA-Z0-9-]{1,63}\.){1,8}[a-zA-Z]{2,63}$/
@@ -214,13 +199,12 @@ export default {
     },
     // -------------------------------------------------------------------------------------- salvar
     salvar () {
-      if (!this.re.test(String(this.rowSelected.email).toLowerCase())) {
+      if (!this.re.test(String(this.rowSelected.texto).toLowerCase())) {
         this.mensagemErro = 'Verifique o email informado.'
         this.showErro = true
         return
       }
       if (this.rowSelected._id === 0) {
-        this.rowSelected.password = 'XXX'
         this.$axios.$post(this.url, this.rowSelected, { headers: { Authorization: 'Bearer ' + this.token } })
           .then((ret) => {
             this.items = ret

@@ -17,10 +17,7 @@
         Incluir
       </b-button>
       <br><br>
-      <div class="text-center">
-        <img v-if="carregando" src="~/assets/loading.gif" width="28px">
-      </div>
-      <div v-if="!carregando" style="padding-top: 10px;">
+      <div style="padding-top: 10px;">
         <b-input-group>
           <b-input-group-prepend>
             <b-button variant="outline-info" @click="search()">
@@ -45,11 +42,16 @@
             </b-button>
           </b-input-group-append>
         </b-input-group>
-        <div class="text-right">
+        <div v-if="!carregando" class="text-right">
           {{ totalRegistros }} registros encontrados.
         </div>
       </div>
+      <div v-if="carregando" class="text-center">
+        <br>
+        <img src="~/assets/loading.gif" width="28px">
+      </div>
       <b-table
+        v-if="!carregando"
         responsive
         class="table scrollArea"
         striped
@@ -148,6 +150,7 @@ export default {
       token: '',
       showAlert: false,
       showErro: false,
+      procurar: '',
       mensagemErro: '',
       carregando: true,
       totalRegistros: '',
@@ -283,9 +286,7 @@ export default {
     },
     // -------------------------------------------------------------------------------------- procurar
     search () {
-      if (this.procurar === '') {
-        this.registros()
-      } else {
+      if (this.procurar !== '') {
         this.carregando = true
         this.$axios.$get(this.url + '-search?site=' + this.procurar, { headers: { Authorization: 'Bearer ' + this.token } })
           .then((ret) => {
