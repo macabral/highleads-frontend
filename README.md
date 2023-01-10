@@ -19,7 +19,7 @@ veja em https://github.com/macabral/highleads-backend
 
 # HighLeads frontend
 
-O HighLeads frontend foi desenvolvido com framework Nuxt (Vue) - SPA (Simgle Page Application).
+O HighLeads frontend foi desenvolvido com framework Nuxt (Vue) - SPA (Single Page Application).
 
 
 
