@@ -94,6 +94,20 @@
                 required
               />
             </b-form-group>
+            <b-form-group label="Perfil">
+              <b-form-select
+                v-model="rowSelected.perfil"
+                :options="perfilOpt"
+                title=""
+              />
+            </b-form-group>
+            <b-form-group label="Ativo">
+              <b-form-select
+                v-model="rowSelected.ativo"
+                :options="ativoOpt"
+                title=""
+              />
+            </b-form-group>
           </b-col>
         </b-row>
       </b-form>
@@ -140,6 +154,8 @@ export default {
       mensagemErro: '',
       carregando: true,
       totalRegistros: '',
+      ativoOpt: [{ value: 1, text: 'Sim' }, { value: 0, text: 'Não' }],
+      perfilOpt: [{ value: 1, text: 'Administrador' }, { value: 2, text: 'Consultor de Vendas' }],
       items: [],
       fields: [
         {
@@ -154,13 +170,29 @@ export default {
           label: 'email',
           tdClass: 'tbvertical'
         },
+        {
+          key: 'perfil',
+          sortable: true,
+          label: 'Perfil',
+          tdClass: 'tbvertical',
+          formatter: 'perfilData'
+        },
+        {
+          key: 'ativo',
+          sortable: true,
+          label: 'Ativo',
+          tdClass: 'tbvertical',
+          formatter: 'ativoData'
+        },
         { key: 'actions', label: 'Ação' }
       ],
       row: {
         _id: 0,
         nome: '',
         email: '',
-        password: ''
+        password: '',
+        ativo: 1,
+        perfil: 1
       },
       rowSelected: {},
       re: /^(?=[a-zA-Z0-9@._%+-]{6,254}$)[a-zA-Z0-9._%+-]{1,64}@(?:[a-zA-Z0-9-]{1,63}\.){1,8}[a-zA-Z]{2,63}$/
@@ -181,6 +213,22 @@ export default {
     // --------------------------------------------------------------------------------------  hide modal
     hideModal (id) {
       this.$root.$emit('bv::hide::modal', id, '#btnShow')
+    },
+    // --------------------------------------------------------------------------------------  Ativo/Inativo
+    ativoData (value) {
+      if (value === 1) {
+        return 'Sim'
+      } else {
+        return 'Não'
+      }
+    },
+    // --------------------------------------------------------------------------------------  Perfil
+    perfilData (value) {
+      if (value === '1') {
+        return 'Administrador'
+      } else {
+        return 'Consultor de Vendas'
+      }
     },
     // -------------------------------------------------------------------------------------- le registros
     registros () {
@@ -219,6 +267,8 @@ export default {
         this.showErro = true
         return
       }
+      this.mensagemErro = 'Salvando...'
+      this.showErro = true
       if (this.rowSelected._id === 0) {
         this.rowSelected.password = 'XXX'
         this.$axios.$post(this.url, this.rowSelected, { headers: { Authorization: 'Bearer ' + this.token } })

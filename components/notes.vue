@@ -1,51 +1,15 @@
 <template>
   <div>
-    <NuxtLayout />
     <b-container fluid>
-      <h3 class="cabec">
-        {{ pageName }}
-      </h3>
       <div v-if="showAlert" style="padding-top:10px;">
         <b-alert v-model="showAlert" dismissible>
           {{ mensagemErro }}
         </b-alert>
       </div>
-      <b-button @click="voltar()">
-        Voltar
-      </b-button>
       <b-button variant="primary" @click="novo()">
         Incluir
       </b-button>
       <br><br>
-      <div style="padding-top: 10px;">
-        <b-input-group>
-          <b-input-group-prepend>
-            <b-button variant="outline-info" @click="search()">
-              Procurar
-            </b-button>
-          </b-input-group-prepend>
-
-          <b-form-input v-model="procurar" type="text" />
-
-          <b-input-group-append>
-            <b-button variant="outline-secondary" @click="procurar=''; pageNumber('down'); registros()">
-              &lt;
-            </b-button>
-            <b-button variant="outline-secondary" @click="procurar=''; pageNumber('up'); registros()">
-              &gt;
-            </b-button>
-            <b-button variant="outline-secondary" @click="Page=1, procurar=''; registros()">
-              X
-            </b-button>
-            <b-button variant="outline-secondary" title="Exportar XLS" @click="exportar()">
-              Exportar
-            </b-button>
-          </b-input-group-append>
-        </b-input-group>
-        <div v-if="!carregando" class="text-right">
-          {{ totalRegistros }} registros encontrados.
-        </div>
-      </div>
       <div v-if="carregando" class="text-center">
         <br>
         <img src="~/assets/loading.gif" width="28px">
@@ -71,7 +35,7 @@
       </b-table>
     </b-container>
     <!------------------------------------------------------------------------------------------------- Incluir  -->
-    <b-modal id="modal-incluir" size="lg" :title="pageName" hide-footer>
+    <b-modal id="modal-incluir-anotação" size="lg" :title="pageName" hide-footer>
       <div v-if="showErro" style="padding-top:10px;">
         <b-alert v-model="showErro" dismissible>
           {{ mensagemErro }}
@@ -80,39 +44,13 @@
       <b-form>
         <b-row>
           <b-col cols="12" md="12" sm="12">
-            <b-form-group label="Página">
-              <b-form-input
-                v-model="rowSelected.pagina"
-                size="sm"
-                required
-              />
-            </b-form-group>
-            <b-form-group label="Responsável">
-              <b-form-input
-                v-model="rowSelected.responsavel"
-                size="sm"
-                required
-              />
-            </b-form-group>
-            <b-form-group label="Emails">
-              <b-form-input
-                v-model="rowSelected.email"
-                size="sm"
-                required
-              />
-            </b-form-group>
-            <b-form-group label="Telefone">
-              <b-form-input
-                v-model="rowSelected.telefone"
-                size="sm"
-                required
-              />
-            </b-form-group>
-            <b-form-group label="Ativo">
-              <b-form-select
-                v-model="rowSelected.ativo"
-                :options="ativoOpt"
-                title=""
+            <b-form-group label="">
+              <b-form-textarea
+                id="textarea"
+                v-model="text"
+                placeholder="Digite sua informação..."
+                rows="3"
+                max-rows="6"
               />
             </b-form-group>
           </b-col>
@@ -122,7 +60,7 @@
         <b-button class="mt-3" variant="primary" @click="salvar(rowSelected.id)">
           Salvar
         </b-button>
-        <b-button class="mt-3" @click="hideModal('modal-incluir')">
+        <b-button class="mt-3" @click="hideModal('modal-incluir-anotação')">
           Cancelar
         </b-button>
       </div>
@@ -149,10 +87,10 @@
 import * as XLSX from 'xlsx'
 
 export default {
-  name: 'SitesPage',
+  name: 'NotesPage',
   data () {
     return {
-      pageName: 'Sites (landing pages)',
+      pageName: 'Anotações',
       url: '/v1/sites',
       token: '',
       showAlert: false,
@@ -256,14 +194,14 @@ export default {
     // -------------------------------------------------------------------------------------- novo
     novo () {
       this.rowSelected = this.row
-      this.$root.$emit('bv::show::modal', 'modal-incluir', '#btnShow')
+      this.$root.$emit('bv::show::modal', 'modal-incluir-anotação', '#btnShow')
     },
     // -------------------------------------------------------------------------------------- editar
     editar (item) {
       this.showAlert = false
       this.showErro = false
       this.rowSelected = item
-      this.$root.$emit('bv::show::modal', 'modal-incluir', '#btnShow')
+      this.$root.$emit('bv::show::modal', 'modal-incluir-anotação', '#btnShow')
     },
     // -------------------------------------------------------------------------------------- salvar
     salvar () {

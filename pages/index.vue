@@ -156,6 +156,8 @@ export default {
         this.showAlert = true
         return
       }
+      this.mensagemErro = 'Verificando login...'
+      this.showAlert = true
       const url = '/v1/login'
       const login = {
         email: this.login.email,

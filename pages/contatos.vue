@@ -27,6 +27,17 @@
 
           <b-form-input v-model="procurar" type="text" />
 
+          <b-input-group-prepend>
+            <b-button variant="outline-info" @click="procurar='', registros()">
+              Status
+            </b-button>
+            <b-form-select
+              v-model="status"
+              :options="statusOpt"
+              @change="procurar='', registros()"
+            />
+          </b-input-group-prepend>
+
           <b-input-group-append>
             <b-button variant="outline-secondary" @click="pagina -= 100; registros()">
               &lt;
@@ -34,7 +45,7 @@
             <b-button variant="outline-secondary" @click="pagina += 100; registros()">
               &gt;
             </b-button>
-            <b-button variant="outline-secondary" @click="procurar = ''; registros()">
+            <b-button variant="outline-secondary" @click="procurar = ''; status = 1; registros()">
               X
             </b-button>
             <b-button variant="outline-secondary" title="Exportar XLS" @click="exportar()">
@@ -42,9 +53,9 @@
             </b-button>
           </b-input-group-append>
         </b-input-group>
-        <div v-if="!carregando" class="text-right">
-          {{ totalRegistros }} registros encontrados.
-        </div>
+      </div>
+      <div v-if="!carregando" class="text-right">
+        {{ totalRegistros }} registros encontrados.
       </div>
       <div v-if="carregando" class="text-center">
         <br>
@@ -59,6 +70,7 @@
               style="width: 30rem;padding-right:5px;padding-bottom: 5px;"
             >
               <b-card-text>
+                {{ element.empresa }}<br>
                 {{ element.email }}<br>
                 {{ element.telefone }}<br>
                 {{ element.site }}<br>
@@ -68,6 +80,9 @@
                 <b-button href="#" variant="primary" @click="editar(element)">
                   Editar
                 </b-button>
+                <div class="rodape">
+                  {{ statusOpt[element.status].text }} | Score: {{ element.score }}
+                </div>
               </template>
             </b-card>
             <br><br>
@@ -76,34 +91,77 @@
       </div>
     </b-container>
     <!------------------------------------------------------------------------------------------------- Incluir  -->
-    <b-modal id="modal-incluir" size="lg" :title="pageName" hide-footer>
+    <b-modal id="modal-incluir" size="xl" :title="pageName" hide-footer>
       <div v-if="showErro" style="padding-top:10px;">
         <b-alert v-model="showErro" dismissible>
           {{ mensagemErro }}
         </b-alert>
       </div>
-      <b-form>
-        <b-row>
-          <b-col cols="12" md="12" sm="12">
-            <b-form-group label="Nome">
-              <b-form-input
-                v-model="rowSelected.nome"
-                size="sm"
-                required
-              />
-            </b-form-group>
-            <b-form-group label="Email">
-              <b-form-input
-                v-model="rowSelected.email"
-                size="sm"
-                required
-              />
-            </b-form-group>
-          </b-col>
-        </b-row>
-      </b-form>
+      <div>
+        <b-tabs content-class="mt-3">
+          <b-tab title="Identificação" active>
+            <b-form>
+              <b-row>
+                <b-col cols="12" md="12" sm="12">
+                  <b-form-group label="Nome">
+                    <b-form-input
+                      v-model="rowSelected.nome"
+                      size="sm"
+                      required
+                    />
+                  </b-form-group>
+                  <b-form-group label="Empresa">
+                    <b-form-input
+                      v-model="rowSelected.empresa"
+                      size="sm"
+                    />
+                  </b-form-group>
+                  <b-form-group label="Email">
+                    <b-form-input
+                      v-model="rowSelected.email"
+                      size="sm"
+                      required
+                    />
+                  </b-form-group>
+                  <b-form-group label="Consultor de Vendas">
+                    <b-form-select
+                      v-model="rowSelected.usuarios_fk"
+                      :options="usuariosOpt"
+                      size="sm"
+                      title=""
+                    />
+                  </b-form-group>
+                  <b-form-group label="Status">
+                    <b-form-select
+                      v-model="rowSelected.status"
+                      :options="statusOpt"
+                      size="sm"
+                      title=""
+                    />
+                  </b-form-group>
+                  <b-form-group label="Score">
+                    <b-form-input
+                      id="range-2"
+                      v-model="rowSelected.score"
+                      type="range"
+                      min="0"
+                      max="10"
+                      step="1"
+                      :title="rowSelected.score"
+                    />
+                  </b-form-group>
+                </b-col>
+              </b-row>
+            </b-form>
+          </b-tab>
+          <b-tab title="Anotações">
+            <Notes />
+          </b-tab>
+        </b-tabs>
+      </div>
+
       <div class="text-right">
-        <b-button class="mt-3" variant="danger" @click="excluir(data.item)">
+        <b-button class="mt-3" variant="danger" @click="excluir(rowSelected.id)">
           Excluir
         </b-button>
         <b-button class="mt-3" variant="primary" @click="salvar(rowSelected.id)">
@@ -121,7 +179,7 @@
         <b>{{ rowSelected.nome }}</b>
       </p>
       <div class="text-right">
-        <b-button class="mt-3" variant="primary" @click="excluirItem(rowSelected.id)">
+        <b-button class="mt-3" variant="primary" @click="excluirItem()">
           Excluir
         </b-button>
         <b-button class="mt-3" @click="hideModal('modal-excluir')">
@@ -134,9 +192,11 @@
 
 <script>
 import * as XLSX from 'xlsx'
+import Notes from '~/components/notes.vue'
 
 export default {
   name: 'ContatosPage',
+  components: { Notes },
   data () {
     return {
       pageName: 'Contatos',
@@ -148,6 +208,8 @@ export default {
       mensagemErro: '',
       carregando: true,
       totalRegistros: '',
+      status: 1,
+      statusOpt: [{ value: 0, text: '' }, { value: 1, text: 'Novo' }, { value: 2, text: 'Em Prospecção' }, { value: 3, text: 'Qualificado' }, { value: 4, text: 'Encerrado (+)' }, { value: 5, text: 'Encerrado (-)' }],
       items: [],
       fields: [
         {
@@ -181,9 +243,15 @@ export default {
         _id: 0,
         nome: '',
         email: '',
-        telefone: ''
+        telefone: '',
+        score: 0,
+        empresa: '',
+        status: 1,
+        usuarios_fk: null
       },
       rowSelected: {},
+      usuariosData: [],
+      usuariosOpt: [],
       re: /^(?=[a-zA-Z0-9@._%+-]{6,254}$)[a-zA-Z0-9._%+-]{1,64}@(?:[a-zA-Z0-9-]{1,63}\.){1,8}[a-zA-Z]{2,63}$/
     }
   },
@@ -193,6 +261,7 @@ export default {
       this.$router.push('/')
     }
     this.registros()
+    this.usuarios()
   },
   methods: {
     // --------------------------------------------------------------------------------------  voltar
@@ -210,9 +279,13 @@ export default {
     },
     // -------------------------------------------------------------------------------------- le registros
     registros () {
+      if (this.procurar !== '') {
+        this.search()
+        return
+      }
       this.mensagemErro = ''
       this.carregando = true
-      this.$axios.$get(this.url, { headers: { Authorization: 'Bearer ' + this.token } })
+      this.$axios.$get(this.url + '-status/' + this.status, { headers: { Authorization: 'Bearer ' + this.token } })
         .then((ret) => {
           this.items = ret
           this.totalRegistros = ret.length
@@ -281,13 +354,12 @@ export default {
       }
     },
     // -------------------------------------------------------------------------------------- excluir
-    excluir (item) {
-      this.rowSelected = item
+    excluir () {
       this.$root.$emit('bv::show::modal', 'modal-excluir', '#btnShow')
     },
     excluirItem () {
-      this.hideModal('modal-excluir')
-      this.carregando = true
+      this.mensagemErro = 'Excluindo...'
+      this.showErro = true
       this.$axios.$delete(this.url + '/' + this.rowSelected.id, { headers: { Authorization: 'Bearer ' + this.token } })
         .then((ret) => {
           this.items = ret
@@ -302,11 +374,14 @@ export default {
             this.showAlert = true
           }
         })
+      this.hideModal('modal-excluir')
+      this.hideModal('modal-incluir')
       this.registros()
     },
     // -------------------------------------------------------------------------------------- procurar
     search () {
       if (this.procurar !== '') {
+        this.status = this.statusOpt[0]
         this.carregando = true
         this.$axios.$get(this.url + '-search?search=' + this.procurar, { headers: { Authorization: 'Bearer ' + this.token } })
           .then((ret) => {
@@ -331,6 +406,30 @@ export default {
       XLSX.utils.book_append_sheet(wb, data, 'data')
       XLSX.writeFile(wb, this.pageName + '.xls')
       this.carregando = false
+    },
+    // -------------------------------------------------------------------------------------- le usuarios
+    usuarios () {
+      this.$axios.$get('/v1/usuarios', { headers: { Authorization: 'Bearer ' + this.token } })
+        .then((ret) => {
+          this.usuariosData = ret
+          const data = []
+          ret.forEach((element) => {
+            const reg = {
+              value: element.id,
+              text: element.nome
+            }
+            data.push(reg)
+          })
+          this.usuariosOpt = data
+          this.carregando = false
+        })
+        .catch((error) => {
+          if (error.response.status === 401) {
+            this.mensagemErro = 'Sem permissão de acesso.'
+            this.showAlert = true
+          }
+          this.carregando = false
+        })
     }
   } /* Fim Methods */
 } /* Fim export */
@@ -357,5 +456,10 @@ export default {
 .card {
   display: inline-block;
   padding: 10px;
+}
+
+.rodape {
+  display:inline;
+  float: right;
 }
 </style>
