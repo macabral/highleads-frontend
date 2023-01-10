@@ -153,23 +153,22 @@
                 </b-col>
               </b-row>
             </b-form>
+            <div class="text-right">
+              <b-button class="mt-3" variant="danger" @click="excluir(rowSelected.id)">
+                Excluir
+              </b-button>
+              <b-button class="mt-3" variant="primary" @click="salvar(rowSelected.id)">
+                Salvar
+              </b-button>
+              <b-button class="mt-3" @click="hideModal('modal-incluir')">
+                Cancelar
+              </b-button>
+            </div>
           </b-tab>
           <b-tab title="Anotações">
-            <Notes />
+            <Notes :id-contatos="rowSelected.id" />
           </b-tab>
         </b-tabs>
-      </div>
-
-      <div class="text-right">
-        <b-button class="mt-3" variant="danger" @click="excluir(rowSelected.id)">
-          Excluir
-        </b-button>
-        <b-button class="mt-3" variant="primary" @click="salvar(rowSelected.id)">
-          Salvar
-        </b-button>
-        <b-button class="mt-3" @click="hideModal('modal-incluir')">
-          Cancelar
-        </b-button>
       </div>
     </b-modal>
     <!------------------------------------------------------------------------------------------------- Excluir -->
@@ -202,7 +201,6 @@ export default {
       pageName: 'Contatos',
       url: '/v1/contatos',
       token: '',
-      procurar: '',
       showAlert: false,
       showErro: false,
       mensagemErro: '',
@@ -211,6 +209,8 @@ export default {
       status: 1,
       statusOpt: [{ value: 0, text: '' }, { value: 1, text: 'Novo' }, { value: 2, text: 'Em Prospecção' }, { value: 3, text: 'Qualificado' }, { value: 4, text: 'Encerrado (+)' }, { value: 5, text: 'Encerrado (-)' }],
       items: [],
+      usuariosData: [],
+      procurar: '',
       fields: [
         {
           key: 'nome',
@@ -240,19 +240,14 @@ export default {
         { key: 'actions', label: 'Ação' }
       ],
       row: {
-        _id: 0,
-        nome: '',
+        id: 0,
+        pagina: '',
+        responsavel: '',
         email: '',
         telefone: '',
-        score: 0,
-        empresa: '',
-        status: 1,
-        usuarios_fk: null
+        ativo: 'Sim'
       },
-      rowSelected: {},
-      usuariosData: [],
-      usuariosOpt: [],
-      re: /^(?=[a-zA-Z0-9@._%+-]{6,254}$)[a-zA-Z0-9._%+-]{1,64}@(?:[a-zA-Z0-9-]{1,63}\.){1,8}[a-zA-Z]{2,63}$/
+      rowSelected: {}
     }
   },
   mounted () {
@@ -260,8 +255,8 @@ export default {
     if (this.token === '') {
       this.$router.push('/')
     }
-    this.registros()
     this.usuarios()
+    this.registros()
   },
   methods: {
     // --------------------------------------------------------------------------------------  voltar
@@ -313,9 +308,7 @@ export default {
     },
     // -------------------------------------------------------------------------------------- salvar
     salvar () {
-      if (!this.re.test(String(this.rowSelected.email).toLowerCase())) {
-        this.mensagemErro = 'Verifique o email informado.'
-        this.showErro = true
+      if (this.rowSelected.texto === '') {
         return
       }
       if (this.rowSelected._id === 0) {

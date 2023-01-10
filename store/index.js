@@ -1,8 +1,8 @@
 export const state = () => ({
   usuarioId: 0,
   usuarioEmail: '',
-  nomeUsuario: '',
-  isAdmin: false,
+  usuarioNome: '',
+  usuarioPerfil: false,
   token: ''
 })
 
@@ -13,11 +13,11 @@ export const mutations = {
   usuarioEmail (state, value) {
     state.usuarioEmail = value
   },
-  nomeUsuario (state, value) {
-    state.nomeUsuario = value
+  usuarioNome (state, value) {
+    state.usuarioNome = value
   },
-  isAdmin (state, value) {
-    state.isAdmin = value
+  usuarioPerfil (state, value) {
+    state.usuarioPerfil = value
   },
   token (state, value) {
     state.token = value
