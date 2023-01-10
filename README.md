@@ -11,6 +11,16 @@ Você pode ter várias landing pages apontando para a mesma conta de email.  O H
 
 O Highleds possui um serviço backend para o serviço de API e o frontend - interface para o gerenciamento dos leads.  Esses serviços podem ser executados no mesmo servidor que você publica as suas landing pages.
 
+## Executando localmente
+
+Para executar o HighLeads localmente:
+
+- primeiramente baixe e execute o HighLeads - backend
+- baixe o HighLeads para a sua pasta local
+- altere "baseURL" para apontar para o endereço local do HighLeads - backend no arquivo nuxt.config.js
+
+Para executar o HighLeads - frontend digite "yarn dev".
+
 # HighLeads backend
 
 O serviço backend foi desenvolvido utilizando o framework laravel/lumen. Isso porque geralmente você hospeda sua landing page em servidores "shared hosts" que possuem o Word Press instalado, fornecem conta de email e serviço de banco de dados.  Assim, é mais fácil colocar tudo em um mesmo servidor.
