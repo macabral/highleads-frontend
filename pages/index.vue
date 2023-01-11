@@ -2,7 +2,7 @@
   <div id="app" class="fundo">
     <b-navbar toggleable="lg" type="dark" variant="info">
       <b-navbar-brand>
-        <img src="../assets/logo-empresa.jpg" height="30" alt="logo empresa">
+        <img src="../assets/highleads.png" height="30" alt="logo empresa">
       </b-navbar-brand>
     </b-navbar>
     <div class="login-page">
