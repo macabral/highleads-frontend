@@ -18,9 +18,17 @@ Para executar o HighLeads localmente:
 - primeiramente instale o Node (se já não tem instalado). O HighLeads - frontend é executado com o Node 16.
 - baixe e execute o HighLeads - backend 
 - baixe o HighLeads para a sua pasta local (yarn install)
-- altere "baseURL" para apontar para o endereço local do HighLeads - backend no arquivo nuxt.config.js
+- altere "baseURL" para apontar para o endereço local do HighLeads - backend no arquivo nuxt.config.js 
 
 Para executar o HighLeads - frontend digite "yarn dev".
+
+## Publicando o HighLeads - frontend no servidor shared host
+
+- execute "yarn build" e "yarn generate"
+- crie um subdomínio no shared host como 'highleads.dominio.com'
+- copie a pasta dist (local) para a pasta no shared host
+
+Abra o navegador indicando o endereço highleads.dominio.com.
 
 # HighLeads backend
 
