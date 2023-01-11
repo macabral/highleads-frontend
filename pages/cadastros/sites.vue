@@ -212,7 +212,7 @@ export default {
     },
     // --------------------------------------------------------------------------------------  Ativo/Inativo
     ativoData (value) {
-      if (value === 1) {
+      if (value === '1') {
         return 'Sim'
       } else {
         return 'Não'
@@ -270,11 +270,11 @@ export default {
       if (this.rowSelected.pagina === '') {
         return
       }
-      if (!this.re.test(String(this.rowSelected.email).toLowerCase())) {
-        this.mensagemErro = 'Verifique o email informado.'
-        this.showErro = true
-        return
-      }
+      // if (!this.re.test(String(this.rowSelected.email).toLowerCase())) {
+      //   this.mensagemErro = 'Verifique o email informado.'
+      //   this.showErro = true
+      //   return
+      // }
       if (this.rowSelected._id === 0) {
         this.$axios.$post(this.url, this.rowSelected, { headers: { Authorization: 'Bearer ' + this.token } })
           .then((ret) => {

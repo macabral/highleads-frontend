@@ -216,7 +216,7 @@ export default {
     },
     // --------------------------------------------------------------------------------------  Ativo/Inativo
     ativoData (value) {
-      if (value === 1) {
+      if (value === '1') {
         return 'Sim'
       } else {
         return 'Não'

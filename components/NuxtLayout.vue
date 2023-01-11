@@ -17,7 +17,7 @@
             Contatos
           </b-nav-item>
 
-          <b-nav-item-dropdown right>
+          <b-nav-item-dropdown v-if="usuarioPerfil == 1" right>
             <!-- Using 'button-content' slot -->
             <template #button-content>
               <em>Cadastros</em>
@@ -65,13 +65,12 @@ export default {
   data () {
     return {
       nomeUsuario: '',
-      isAdmin: false,
-      isRecepcao: false,
-      clinica: ''
+      usuarioPerfil: 0
     }
   },
   mounted () {
     this.nomeUsuario = this.$store.state.usuarioEmail
+    this.usuarioPerfil = this.$store.state.usuarioPerfil
   },
   methods: {
   }

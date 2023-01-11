@@ -15,8 +15,9 @@ O Highleds possui um serviço backend para o serviço de API e o frontend - inte
 
 Para executar o HighLeads localmente:
 
-- primeiramente baixe e execute o HighLeads - backend
-- baixe o HighLeads para a sua pasta local
+- primeiramente instale o Node (se já não tem instalado). O HighLeads - frontend é executado com o Node 16.
+- baixe e execute o HighLeads - backend 
+- baixe o HighLeads para a sua pasta local (yarn install)
 - altere "baseURL" para apontar para o endereço local do HighLeads - backend no arquivo nuxt.config.js
 
 Para executar o HighLeads - frontend digite "yarn dev".
