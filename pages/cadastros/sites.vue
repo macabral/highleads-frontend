@@ -43,7 +43,7 @@
           </b-input-group-append>
         </b-input-group>
         <div v-if="!carregando" class="text-right">
-          {{ totalRegistros }} registros encontrados.
+          {{ totalRegistros }} registros encontrados (15 registros por página)
         </div>
       </div>
       <div v-if="carregando" class="text-center">
@@ -77,26 +77,28 @@
           {{ mensagemErro }}
         </b-alert>
       </div>
-      <b-form>
+      <b-form @submit="onSubmit">
         <b-row>
           <b-col cols="12" md="12" sm="12">
-            <b-form-group label="Página">
+            <b-form-group label="Página*">
               <b-form-input
                 v-model="rowSelected.pagina"
                 size="sm"
+                maxlength="255"
                 required
               />
             </b-form-group>
             <b-form-group label="Responsável">
               <b-form-input
                 v-model="rowSelected.responsavel"
+                maxlength="80"
                 size="sm"
-                required
               />
             </b-form-group>
-            <b-form-group label="Emails">
+            <b-form-group label="Emails* (insira os emails separados por ';')">
               <b-form-input
                 v-model="rowSelected.email"
+                maxlength="1024"
                 size="sm"
                 required
               />
@@ -104,28 +106,27 @@
             <b-form-group label="Telefone">
               <b-form-input
                 v-model="rowSelected.telefone"
+                maxlength="15"
                 size="sm"
-                required
               />
             </b-form-group>
             <b-form-group label="Ativo">
               <b-form-select
                 v-model="rowSelected.ativo"
                 :options="ativoOpt"
-                title=""
               />
             </b-form-group>
           </b-col>
         </b-row>
+        <div class="text-right">
+          <b-button type="submit" class="mt-3" variant="primary">
+            Salvar
+          </b-button>
+          <b-button class="mt-3" @click="hideModal('modal-incluir')">
+            Cancelar
+          </b-button>
+        </div>
       </b-form>
-      <div class="text-right">
-        <b-button class="mt-3" variant="primary" @click="salvar(rowSelected.id)">
-          Salvar
-        </b-button>
-        <b-button class="mt-3" @click="hideModal('modal-incluir')">
-          Cancelar
-        </b-button>
-      </div>
     </b-modal>
     <!------------------------------------------------------------------------------------------------- Excluir -->
     <b-modal id="modal-excluir" title="Excluir" hide-footer>
@@ -179,14 +180,6 @@ export default {
         },
         { key: 'actions', label: 'Ação' }
       ],
-      row: {
-        _id: 0,
-        pagina: '',
-        responsavel: '',
-        email: '',
-        telefone: '',
-        ativo: 'Sim'
-      },
       rowSelected: {},
       fristPage: 0,
       lastPage: 0,
@@ -234,7 +227,7 @@ export default {
     },
     // -------------------------------------------------------------------------------------- le registros
     registros () {
-      this.mensagemErro = ''
+      this.showAlert = false
       this.carregando = true
       const url = this.url + '?page=' + this.Page
       this.$axios.$get(url, { headers: { Authorization: 'Bearer ' + this.token } })
@@ -255,7 +248,15 @@ export default {
     },
     // -------------------------------------------------------------------------------------- novo
     novo () {
-      this.rowSelected = this.row
+      this.showErro = false
+      this.rowSelected = {
+        _id: 0,
+        pagina: '',
+        responsavel: '',
+        email: '',
+        telefone: '',
+        ativo: 'Sim'
+      }
       this.$root.$emit('bv::show::modal', 'modal-incluir', '#btnShow')
     },
     // -------------------------------------------------------------------------------------- editar
@@ -266,19 +267,26 @@ export default {
       this.$root.$emit('bv::show::modal', 'modal-incluir', '#btnShow')
     },
     // -------------------------------------------------------------------------------------- salvar
-    salvar () {
+    onSubmit (event) {
+      event.preventDefault()
       if (this.rowSelected.pagina === '') {
         return
       }
-      // if (!this.re.test(String(this.rowSelected.email).toLowerCase())) {
-      //   this.mensagemErro = 'Verifique o email informado.'
-      //   this.showErro = true
-      //   return
-      // }
+      this.showErro = false
+      const emails = this.rowSelected.email
+      const email = emails.split(';')
+      email.forEach((item) => {
+        if (!this.re.test(String(item).toLowerCase().trim())) {
+          this.mensagemErro = 'Verifique o email informado.'
+          this.showErro = true
+        }
+      })
+      if (this.showErro) {
+        return
+      }
       if (this.rowSelected._id === 0) {
         this.$axios.$post(this.url, this.rowSelected, { headers: { Authorization: 'Bearer ' + this.token } })
           .then((ret) => {
-            this.items = ret
             this.hideModal('modal-incluir')
             this.registros()
           })
@@ -296,7 +304,6 @@ export default {
         this.showErro = true
         this.$axios.$put(this.url + '/' + this.rowSelected.id, this.rowSelected, { headers: { Authorization: 'Bearer ' + this.token } })
           .then((ret) => {
-            this.items = ret
             this.hideModal('modal-incluir')
             this.registros()
           })
@@ -321,8 +328,7 @@ export default {
       this.carregando = true
       this.$axios.$delete(this.url + '/' + this.rowSelected.id, { headers: { Authorization: 'Bearer ' + this.token } })
         .then((ret) => {
-          this.items = ret
-          this.carregando = false
+          this.registros()
         })
         .catch((error) => {
           if (error.response.status === 401) {
@@ -333,7 +339,7 @@ export default {
             this.showAlert = true
           }
         })
-      this.registros()
+      this.carregando = false
     },
     // -------------------------------------------------------------------------------------- procurar
     search () {
@@ -356,13 +362,26 @@ export default {
     },
     // -------------------------------------------------------------------------------------- exportar
     exportar () {
-      this.carregando = true
-      const registros = this.items
-      const data = XLSX.utils.json_to_sheet(registros)
-      const wb = XLSX.utils.book_new()
-      XLSX.utils.book_append_sheet(wb, data, 'data')
-      XLSX.writeFile(wb, this.pageName + '.xls')
-      this.carregando = false
+      if (this.procurar !== '') {
+        const data = XLSX.utils.json_to_sheet(this.items)
+        const wb = XLSX.utils.book_new()
+        XLSX.utils.book_append_sheet(wb, data, 'data')
+        XLSX.writeFile(wb, this.pageName + '.xls')
+      } else {
+        this.$axios.$get(this.url + '-all', { headers: { Authorization: 'Bearer ' + this.token } })
+          .then((ret) => {
+            const data = XLSX.utils.json_to_sheet(ret)
+            const wb = XLSX.utils.book_new()
+            XLSX.utils.book_append_sheet(wb, data, 'data')
+            XLSX.writeFile(wb, this.pageName + '.xls')
+          })
+          .catch((error) => {
+            if (error.response.status === 401) {
+              this.mensagemErro = 'Sem permissão de acesso.'
+              this.showAlert = true
+            }
+          })
+      }
     }
   } /* Fim Methods */
 } /* Fim export */
