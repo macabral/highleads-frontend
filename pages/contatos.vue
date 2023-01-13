@@ -206,6 +206,7 @@ export default {
       carregando: true,
       totalRegistros: '',
       status: 1,
+      usuariosOpt: [],
       statusOpt: [{ value: 0, text: '' }, { value: 1, text: 'Novo' }, { value: 2, text: 'Em Prospecção' }, { value: 3, text: 'Qualificado' }, { value: 4, text: 'Encerrado (+)' }, { value: 5, text: 'Encerrado (-)' }],
       items: [],
       usuariosData: [],
