@@ -49,7 +49,7 @@
             <!-- <b-dropdown-item href="/perfil" to="/perfil">
               Perfil
             </b-dropdown-item> -->
-            <b-dropdown-item href="/" to="/">
+            <b-dropdown-item href="#" to="#" @click="logout()">
               Sair
             </b-dropdown-item>
           </b-nav-item-dropdown>
@@ -73,6 +73,19 @@ export default {
     this.usuarioPerfil = this.$store.state.usuarioPerfil
   },
   methods: {
+    // -------------------------------------------------------------------------------------- logout
+    logout () {
+      this.$axios
+        .$get(this.url, {
+          headers: { Authorization: 'Bearer ' + this.$store.state.token }
+        })
+        .then((ret) => {
+          this.$router.push('/')
+        })
+        .catch(() => {
+          this.$router.push('/')
+        })
+    }
   }
 
 }

@@ -242,8 +242,13 @@ export default {
         })
         .catch((error) => {
           if (error.response.status === 401) {
-            this.mensagemErro = 'Sem permissão de acesso.'
-            this.showAlert = true
+            this.refreshToken(this.$store.state.token)
+            if (this.$store.state.token !== '') {
+              this.registros()
+            } else {
+              this.mensagemErro = 'Token inválido'
+              this.showAlert = true
+            }
           }
           this.carregando = false
         })
@@ -279,8 +284,13 @@ export default {
           })
           .catch((error) => {
             if (error.response.status === 401) {
-              this.mensagemErro = 'Sem permissão de acesso.'
-              this.showAErro = true
+              this.refreshToken(this.$store.state.token)
+              if (this.$store.state.token !== '') {
+                this.salvar()
+              } else {
+                this.mensagemErro = 'Token inválido'
+                this.showAlert = true
+              }
             } else {
               this.mensagemErro = error
               this.showErro = true
@@ -295,8 +305,13 @@ export default {
           })
           .catch((error) => {
             if (error.response.status === 401) {
-              this.mensagemErro = 'Sem permissão de acesso.'
-              this.showErro = true
+              this.refreshToken(this.$store.state.token)
+              if (this.$store.state.token !== '') {
+                this.salvar()
+              } else {
+                this.mensagemErro = 'Token inválido'
+                this.showAlert = true
+              }
             } else {
               this.mensagemErro = error
               this.showErro = true
@@ -319,8 +334,13 @@ export default {
         })
         .catch((error) => {
           if (error.response.status === 401) {
-            this.mensagemErro = 'Sem permissão de acesso.'
-            this.showAlert = true
+            this.refreshToken(this.$store.state.token)
+            if (this.$store.state.token !== '') {
+              this.excluirItem()
+            } else {
+              this.mensagemErro = 'Token inválido'
+              this.showAlert = true
+            }
           } else {
             this.mensagemErro = error
             this.showAlert = true
@@ -339,8 +359,13 @@ export default {
           })
           .catch((error) => {
             if (error.response.status === 401) {
-              this.mensagemErro = 'Sem permissão de acesso.'
-              this.showAlert = true
+              this.refreshToken(this.$store.state.token)
+              if (this.$store.state.token !== '') {
+                this.search()
+              } else {
+                this.mensagemErro = 'Token inválido'
+                this.showAlert = true
+              }
             }
             this.carregando = false
           })

@@ -38,7 +38,6 @@ export default {
     return {
       pageName: 'Painel de Controle',
       url: '/v1/estat',
-      token: '',
       showAlert: false,
       mensagemErro: '',
       carregando: true,
@@ -84,8 +83,7 @@ export default {
     }
   },
   mounted () {
-    this.token = this.$store.state.token
-    if (this.token === '') {
+    if (this.$store.state.token === '') {
       this.$router.push('/')
     }
     this.registros()
@@ -95,15 +93,20 @@ export default {
     registros () {
       this.mensagemErro = ''
       this.carregando = true
-      this.$axios.$get(this.url, { headers: { Authorization: 'Bearer ' + this.token } })
+      this.$axios.$get(this.url, { headers: { Authorization: 'Bearer ' + this.$store.state.token } })
         .then((ret) => {
           this.items = ret
           this.carregando = false
         })
         .catch((error) => {
           if (error.response.status === 401) {
-            this.mensagemErro = 'Sem permissão de acesso.'
-            this.showAlert = true
+            this.refreshToken(this.$store.state.token)
+            if (this.$store.state.token !== '') {
+              this.registros()
+            } else {
+              this.mensagemErro = 'Token inválido'
+              this.showAlert = true
+            }
           }
           this.carregando = false
         })

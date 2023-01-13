@@ -155,7 +155,6 @@ export default {
     return {
       pageName: 'Sites (landing pages)',
       url: '/v1/sites',
-      token: '',
       showAlert: false,
       showErro: false,
       procurar: '',
@@ -188,8 +187,7 @@ export default {
     }
   },
   mounted () {
-    this.token = this.$store.state.token
-    if (this.token === '') {
+    if (this.$store.state.token === '' || this.$store.state.usuarioPerfil !== '1') {
       this.$router.push('/')
     }
     this.registros()
@@ -230,7 +228,7 @@ export default {
       this.showAlert = false
       this.carregando = true
       const url = this.url + '?page=' + this.Page
-      this.$axios.$get(url, { headers: { Authorization: 'Bearer ' + this.token } })
+      this.$axios.$get(url, { headers: { Authorization: 'Bearer ' + this.$store.state.token } })
         .then((ret) => {
           this.items = ret.data
           this.totalRegistros = ret.total
@@ -240,8 +238,13 @@ export default {
         })
         .catch((error) => {
           if (error.response.status === 401) {
-            this.mensagemErro = 'Sem permissão de acesso.'
-            this.showAlert = true
+            this.refreshToken(this.$store.state.token)
+            if (this.$store.state.token !== '') {
+              this.registros()
+            } else {
+              this.mensagemErro = 'Token inválido'
+              this.showAlert = true
+            }
           }
           this.carregando = false
         })
@@ -285,15 +288,20 @@ export default {
         return
       }
       if (this.rowSelected._id === 0) {
-        this.$axios.$post(this.url, this.rowSelected, { headers: { Authorization: 'Bearer ' + this.token } })
+        this.$axios.$post(this.url, this.rowSelected, { headers: { Authorization: 'Bearer ' + this.$store.state.token } })
           .then((ret) => {
             this.hideModal('modal-incluir')
             this.registros()
           })
           .catch((error) => {
             if (error.response.status === 401) {
-              this.mensagemErro = 'Sem permissão de acesso.'
-              this.showAErro = true
+              this.refreshToken(this.$store.state.token)
+              if (this.$store.state.token !== '') {
+                this.onSubmit()
+              } else {
+                this.mensagemErro = 'Token inválido'
+                this.showAlert = true
+              }
             } else {
               this.mensagemErro = error
               this.showErro = true
@@ -302,15 +310,20 @@ export default {
       } else {
         this.mensagemErro = 'Salvando...'
         this.showErro = true
-        this.$axios.$put(this.url + '/' + this.rowSelected.id, this.rowSelected, { headers: { Authorization: 'Bearer ' + this.token } })
+        this.$axios.$put(this.url + '/' + this.rowSelected.id, this.rowSelected, { headers: { Authorization: 'Bearer ' + this.$store.state.token } })
           .then((ret) => {
             this.hideModal('modal-incluir')
             this.registros()
           })
           .catch((error) => {
             if (error.response.status === 401) {
-              this.mensagemErro = 'Sem permissão de acesso.'
-              this.showErro = true
+              this.refreshToken(this.$store.state.token)
+              if (this.$store.state.token !== '') {
+                this.onSubmit()
+              } else {
+                this.mensagemErro = 'Token inválido'
+                this.showAlert = true
+              }
             } else {
               this.mensagemErro = error
               this.showErro = true
@@ -326,14 +339,19 @@ export default {
     excluirItem () {
       this.hideModal('modal-excluir')
       this.carregando = true
-      this.$axios.$delete(this.url + '/' + this.rowSelected.id, { headers: { Authorization: 'Bearer ' + this.token } })
+      this.$axios.$delete(this.url + '/' + this.rowSelected.id, { headers: { Authorization: 'Bearer ' + this.$store.state.token } })
         .then((ret) => {
           this.registros()
         })
         .catch((error) => {
           if (error.response.status === 401) {
-            this.mensagemErro = 'Sem permissão de acesso.'
-            this.showAlert = true
+            this.refreshToken(this.$store.state.token)
+            if (this.$store.state.token !== '') {
+              this.excluirItem()
+            } else {
+              this.mensagemErro = 'Token inválido'
+              this.showAlert = true
+            }
           } else {
             this.mensagemErro = error
             this.showAlert = true
@@ -345,7 +363,7 @@ export default {
     search () {
       if (this.procurar !== '') {
         this.carregando = true
-        this.$axios.$get(this.url + '-search?site=' + this.procurar, { headers: { Authorization: 'Bearer ' + this.token } })
+        this.$axios.$get(this.url + '-search?site=' + this.procurar, { headers: { Authorization: 'Bearer ' + this.$store.state.token } })
           .then((ret) => {
             this.items = ret
             this.totalRegistros = ret.length
@@ -353,8 +371,13 @@ export default {
           })
           .catch((error) => {
             if (error.response.status === 401) {
-              this.mensagemErro = 'Sem permissão de acesso.'
-              this.showAlert = true
+              this.refreshToken(this.$store.state.token)
+              if (this.$store.state.token !== '') {
+                this.search()
+              } else {
+                this.mensagemErro = 'Token inválido'
+                this.showAlert = true
+              }
             }
             this.carregando = false
           })
@@ -368,7 +391,7 @@ export default {
         XLSX.utils.book_append_sheet(wb, data, 'data')
         XLSX.writeFile(wb, this.pageName + '.xls')
       } else {
-        this.$axios.$get(this.url + '-all', { headers: { Authorization: 'Bearer ' + this.token } })
+        this.$axios.$get(this.url + '-all', { headers: { Authorization: 'Bearer ' + this.$store.state.token } })
           .then((ret) => {
             const data = XLSX.utils.json_to_sheet(ret)
             const wb = XLSX.utils.book_new()
@@ -377,8 +400,13 @@ export default {
           })
           .catch((error) => {
             if (error.response.status === 401) {
-              this.mensagemErro = 'Sem permissão de acesso.'
-              this.showAlert = true
+              this.refreshToken(this.$store.state.token)
+              if (this.$store.state.token !== '') {
+                this.exportar()
+              } else {
+                this.mensagemErro = 'Token inválido'
+                this.showAlert = true
+              }
             }
           })
       }
