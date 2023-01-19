@@ -3,6 +3,12 @@
     <NuxtLayout />
     <b-container fluid>
       <h3 class="cabec">
+        <img
+          src="../assets/painel-de-controle.png"
+          height="30"
+          alt="highleads"
+        >
+        </img>
         {{ pageName }}
       </h3>
       <div v-if="showAlert" style="padding-top:10px;">
@@ -100,13 +106,12 @@ export default {
         })
         .catch((error) => {
           if (error.response.status === 401) {
-            this.refreshToken(this.$store.state.token)
-            if (this.$store.state.token !== '') {
+            if (this.refreshToken()) {
               this.registros()
-            } else {
-              this.mensagemErro = 'Token inválido'
-              this.showAlert = true
             }
+          } else {
+            this.mensagemErro = error
+            this.showErro = true
           }
           this.carregando = false
         })

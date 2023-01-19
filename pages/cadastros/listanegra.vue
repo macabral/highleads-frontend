@@ -126,7 +126,6 @@ export default {
     return {
       pageName: 'Lista Negra',
       url: '/v1/blacklist',
-      token: '',
       procurar: '',
       showAlert: false,
       showErro: false,
@@ -152,8 +151,7 @@ export default {
     }
   },
   mounted () {
-    this.token = this.$store.state.token
-    if (this.token === '') {
+    if (this.$store.state.token === '') {
       this.$router.push('/')
     }
     this.registros()
@@ -171,7 +169,7 @@ export default {
     registros () {
       this.mensagemErro = ''
       this.carregando = true
-      this.$axios.$get(this.url, { headers: { Authorization: 'Bearer ' + this.token } })
+      this.$axios.$get(this.url, { headers: { Authorization: 'Bearer ' + this.$store.state.token } })
         .then((ret) => {
           this.items = ret
           this.totalRegistros = ret.length
@@ -179,13 +177,12 @@ export default {
         })
         .catch((error) => {
           if (error.response.status === 401) {
-            this.refreshToken(this.$store.state.token)
-            if (this.$store.state.token !== '') {
+            if (this.refreshToken()) {
               this.registros()
-            } else {
-              this.mensagemErro = 'Token inválido'
-              this.showAlert = true
             }
+          } else {
+            this.mensagemErro = error
+            this.showErro = true
           }
           this.carregando = false
         })
@@ -210,7 +207,7 @@ export default {
         return
       }
       if (this.rowSelected._id === 0) {
-        this.$axios.$post(this.url, this.rowSelected, { headers: { Authorization: 'Bearer ' + this.token } })
+        this.$axios.$post(this.url, this.rowSelected, { headers: { Authorization: 'Bearer ' + this.$store.state.token } })
           .then((ret) => {
             this.items = ret
             this.hideModal('modal-incluir')
@@ -218,12 +215,8 @@ export default {
           })
           .catch((error) => {
             if (error.response.status === 401) {
-              this.refreshToken(this.$store.state.token)
-              if (this.$store.state.token !== '') {
+              if (this.refreshToken()) {
                 this.salvar()
-              } else {
-                this.mensagemErro = 'Token inválido'
-                this.showAlert = true
               }
             } else {
               this.mensagemErro = error
@@ -231,7 +224,7 @@ export default {
             }
           })
       } else {
-        this.$axios.$put(this.url + '/' + this.rowSelected.id, this.rowSelected, { headers: { Authorization: 'Bearer ' + this.token } })
+        this.$axios.$put(this.url + '/' + this.rowSelected.id, this.rowSelected, { headers: { Authorization: 'Bearer ' + this.$store.state.token } })
           .then((ret) => {
             this.items = ret
             this.hideModal('modal-incluir')
@@ -239,12 +232,8 @@ export default {
           })
           .catch((error) => {
             if (error.response.status === 401) {
-              this.refreshToken(this.$store.state.token)
-              if (this.$store.state.token !== '') {
-                this.salva()
-              } else {
-                this.mensagemErro = 'Token inválido'
-                this.showAlert = true
+              if (this.refreshToken()) {
+                this.salvar()
               }
             } else {
               this.mensagemErro = error
@@ -261,23 +250,19 @@ export default {
     excluirItem () {
       this.hideModal('modal-excluir')
       this.carregando = true
-      this.$axios.$delete(this.url + '/' + this.rowSelected.id, { headers: { Authorization: 'Bearer ' + this.token } })
+      this.$axios.$delete(this.url + '/' + this.rowSelected.id, { headers: { Authorization: 'Bearer ' + this.$store.state.token } })
         .then((ret) => {
           this.items = ret
           this.carregando = false
         })
         .catch((error) => {
           if (error.response.status === 401) {
-            this.refreshToken(this.$store.state.token)
-            if (this.$store.state.token !== '') {
-              this.excluirItem()
-            } else {
-              this.mensagemErro = 'Token inválido'
-              this.showAlert = true
+            if (this.refreshToken()) {
+              this.salvar()
             }
           } else {
             this.mensagemErro = error
-            this.showAlert = true
+            this.showErro = true
           }
         })
       this.registros()
@@ -286,20 +271,19 @@ export default {
     search () {
       if (this.procurar !== '') {
         this.carregando = true
-        this.$axios.$get(this.url + '-search?search=' + this.procurar, { headers: { Authorization: 'Bearer ' + this.token } })
+        this.$axios.$get(this.url + '-search?search=' + this.procurar, { headers: { Authorization: 'Bearer ' + this.$store.state.token } })
           .then((ret) => {
             this.items = ret
             this.carregando = false
           })
           .catch((error) => {
             if (error.response.status === 401) {
-              this.refreshToken(this.$store.state.token)
-              if (this.$store.state.token !== '') {
+              if (this.refreshToken()) {
                 this.search()
-              } else {
-                this.mensagemErro = 'Token inválido'
-                this.showAlert = true
               }
+            } else {
+              this.mensagemErro = error
+              this.showErro = true
             }
             this.carregando = false
           })

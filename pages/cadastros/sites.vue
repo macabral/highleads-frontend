@@ -238,13 +238,12 @@ export default {
         })
         .catch((error) => {
           if (error.response.status === 401) {
-            this.refreshToken(this.$store.state.token)
-            if (this.$store.state.token !== '') {
+            if (this.refreshToken()) {
               this.registros()
-            } else {
-              this.mensagemErro = 'Token inválido'
-              this.showAlert = true
             }
+          } else {
+            this.mensagemErro = error
+            this.showErro = true
           }
           this.carregando = false
         })
@@ -295,12 +294,8 @@ export default {
           })
           .catch((error) => {
             if (error.response.status === 401) {
-              this.refreshToken(this.$store.state.token)
-              if (this.$store.state.token !== '') {
+              if (this.refreshToken()) {
                 this.onSubmit()
-              } else {
-                this.mensagemErro = 'Token inválido'
-                this.showAlert = true
               }
             } else {
               this.mensagemErro = error
@@ -317,12 +312,8 @@ export default {
           })
           .catch((error) => {
             if (error.response.status === 401) {
-              this.refreshToken(this.$store.state.token)
-              if (this.$store.state.token !== '') {
+              if (this.refreshToken()) {
                 this.onSubmit()
-              } else {
-                this.mensagemErro = 'Token inválido'
-                this.showAlert = true
               }
             } else {
               this.mensagemErro = error
@@ -345,16 +336,12 @@ export default {
         })
         .catch((error) => {
           if (error.response.status === 401) {
-            this.refreshToken(this.$store.state.token)
-            if (this.$store.state.token !== '') {
+            if (this.refreshToken()) {
               this.excluirItem()
-            } else {
-              this.mensagemErro = 'Token inválido'
-              this.showAlert = true
             }
           } else {
             this.mensagemErro = error
-            this.showAlert = true
+            this.showErro = true
           }
         })
       this.carregando = false
@@ -371,13 +358,12 @@ export default {
           })
           .catch((error) => {
             if (error.response.status === 401) {
-              this.refreshToken(this.$store.state.token)
-              if (this.$store.state.token !== '') {
+              if (this.refreshToken()) {
                 this.search()
-              } else {
-                this.mensagemErro = 'Token inválido'
-                this.showAlert = true
               }
+            } else {
+              this.mensagemErro = error
+              this.showErro = true
             }
             this.carregando = false
           })
@@ -400,13 +386,12 @@ export default {
           })
           .catch((error) => {
             if (error.response.status === 401) {
-              this.refreshToken(this.$store.state.token)
-              if (this.$store.state.token !== '') {
+              if (this.refreshToken()) {
                 this.exportar()
-              } else {
-                this.mensagemErro = 'Token inválido'
-                this.showAlert = true
               }
+            } else {
+              this.mensagemErro = error
+              this.showErro = true
             }
           })
       }

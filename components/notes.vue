@@ -1,8 +1,8 @@
 <template>
   <div>
     <b-container fluid>
-      <div v-if="showAlert" style="padding-top:10px;">
-        <b-alert v-model="showAlert" dismissible>
+      <div v-if="showErro" style="padding-top:10px;">
+        <b-alert dismissible>
           {{ mensagemErro }}
         </b-alert>
       </div>
@@ -23,7 +23,7 @@
         striped
         hover
         small
-        :items="items"
+        :items="notesItens"
         :fields="fields"
       >
         <template #cell(actions)="data">
@@ -83,7 +83,6 @@
 </template>
 
 <script>
-import * as XLSX from 'xlsx'
 
 export default {
   name: 'NotesPage',
@@ -95,15 +94,10 @@ export default {
     return {
       pageName: 'Anotações',
       url: '/v1/notes',
-      token: '',
-      showAlert: false,
       showErro: false,
-      procurar: '',
       mensagemErro: '',
       carregando: true,
-      totalRegistros: '',
-      ativoOpt: [{ value: 1, text: 'Sim' }, { value: 0, text: 'Não' }],
-      items: [],
+      notesItens: [],
       usuarioId: 0,
       fields: [
         {
@@ -127,34 +121,19 @@ export default {
         },
         { key: 'actions', label: 'Ação' }
       ],
-      row: {
-        _id: 0,
-        usuarios_fk: 0,
-        contatos_fk: 0,
-        texto: ''
-      },
       rowSelected: {},
-      fristPage: 0,
-      lastPage: 0,
-      Page: 1,
-      usuarioPerfil: 0,
-      re: /^(?=[a-zA-Z0-9@._%+-]{6,254}$)[a-zA-Z0-9._%+-]{1,64}@(?:[a-zA-Z0-9-]{1,63}\.){1,8}[a-zA-Z]{2,63}$/
+      usuarioPerfil: 0
     }
   },
   mounted () {
-    this.token = this.$store.state.token
     this.usuarioId = this.$store.state.usuarioId
     this.usuarioPerfil = this.$store.state.usuarioPerfil
-    if (this.token === '') {
+    if (this.$store.state.token === '') {
       this.$router.push('/')
     }
     this.registros()
   },
   methods: {
-    // --------------------------------------------------------------------------------------  voltar
-    voltar () {
-      this.$router.push('/painel')
-    },
     // --------------------------------------------------------------------------------------  hide modal
     hideModal (id) {
       this.$root.$emit('bv::hide::modal', id, '#btnShow')
@@ -164,50 +143,28 @@ export default {
       const data = new Date(value)
       return data.toLocaleDateString('pt-Br') + ' ' + ((data.getHours() < 10) ? '0' + data.getHours() : data.getHours()) + ':' + ((data.getMinutes() < 10) ? '0' + data.getMinutes() : data.getMinutes())
     },
-    // --------------------------------------------------------------------------------------  Ativo/Inativo
-    ativoData (value) {
-      if (value === 1) {
-        return 'Sim'
-      } else {
-        return 'Não'
-      }
-    },
-    // -------------------------------------------------------------------------------------- Page
-    pageNumber (flag) {
-      if (flag === 'up') {
-        this.Page = this.Page + 1
-        if (this.Page > this.lastPage) {
-          this.Page = this.lastPage
-        }
-      } else {
-        this.Page = this.Page - 1
-        if (this.Page < 1) {
-          this.Page = 1
-        }
-      }
-    },
     // -------------------------------------------------------------------------------------- le registros
     registros () {
       this.mensagemErro = ''
       this.carregando = true
+      this.showErro = false
       const url = this.url + '/' + this.idContatos
-      this.$axios.$get(url, { headers: { Authorization: 'Bearer ' + this.token } })
+      this.$axios.$get(url, { headers: { Authorization: 'Bearer ' + this.$store.state.token } })
         .then((ret) => {
-          this.items = ret
-          this.totalRegistros = ret.total
-          this.fristPage = ret.form
-          this.lastPage = ret.last_page
+          this.notesItens = ret
+          this.carregando = false
         })
         .catch((error) => {
           if (error.response.status === 401) {
-            this.mensagemErro = 'Sem permissão de acesso.'
-            this.showAlert = true
+            if (this.refreshToken()) {
+              this.registros()
+            }
           } else {
             this.mensagemErro = error
-            this.showAlert = true
+            this.showErro = true
           }
+          this.carregando = false
         })
-      this.carregando = false
     },
     // -------------------------------------------------------------------------------------- novo
     novo () {
@@ -220,7 +177,6 @@ export default {
     },
     // -------------------------------------------------------------------------------------- editar
     editar (item) {
-      this.showAlert = false
       this.showErro = false
       this.$root.$emit('bv::show::modal', 'modal-incluir-anotação', '#btnShow')
     },
@@ -229,20 +185,22 @@ export default {
       if (this.rowSelected.texto === '') {
         return
       }
-      this.$axios.$post(this.url, this.rowSelected, { headers: { Authorization: 'Bearer ' + this.token } })
+      this.$axios.$post(this.url, this.rowSelected, { headers: { Authorization: 'Bearer ' + this.$store.state.token } })
         .then((ret) => {
-          this.items = ret
+          this.notesItens = ret
           this.hideModal('modal-incluir-anotação')
           this.registros()
         })
         .catch((error) => {
           if (error.response.status === 401) {
-            this.mensagemErro = 'Sem permissão de acesso.'
-            this.showAErro = true
+            if (this.refreshToken()) {
+              this.registros()
+            }
           } else {
             this.mensagemErro = error
             this.showErro = true
           }
+          this.carregando = false
         })
     },
     // -------------------------------------------------------------------------------------- excluir
@@ -253,70 +211,47 @@ export default {
     excluirItem () {
       this.hideModal('modal-excluir')
       this.carregando = true
-      this.$axios.$delete(this.url + '/' + this.rowSelected.id, { headers: { Authorization: 'Bearer ' + this.token } })
+      this.$axios.$delete(this.url + '/' + this.rowSelected.id, { headers: { Authorization: 'Bearer ' + this.$store.state.token } })
         .then(() => {
-          this.carregando = false
+          this.registros()
         })
         .catch((error) => {
           if (error.response.status === 401) {
-            this.mensagemErro = 'Sem permissão de acesso.'
-            this.showAlert = true
+            if (this.refreshToken()) {
+              this.excluirItem()
+            }
           } else {
             this.mensagemErro = error
-            this.showAlert = true
+            this.showErro = true
           }
+          this.carregando = false
         })
-      this.registros()
     },
     // -------------------------------------------------------------------------------------- procurar
     search () {
       if (this.procurar !== '') {
         this.carregando = true
-        this.$axios.$get(this.url + '-search?site=' + this.procurar, { headers: { Authorization: 'Bearer ' + this.token } })
+        this.$axios.$get(this.url + '-search?site=' + this.procurar, { headers: { Authorization: 'Bearer ' + this.$store.state.token } })
           .then((ret) => {
-            this.items = ret
-            this.totalRegistros = ret.length
+            this.notesItens = ret
             this.carregando = false
           })
           .catch((error) => {
             if (error.response.status === 401) {
-              this.mensagemErro = 'Sem permissão de acesso.'
-              this.showAlert = true
+              if (this.refreshToken()) {
+                this.search()
+              }
+            } else {
+              this.mensagemErro = error
+              this.showErro = true
             }
             this.carregando = false
           })
       }
-    },
-    // -------------------------------------------------------------------------------------- exportar
-    exportar () {
-      this.carregando = true
-      const registros = this.items
-      const data = XLSX.utils.json_to_sheet(registros)
-      const wb = XLSX.utils.book_new()
-      XLSX.utils.book_append_sheet(wb, data, 'data')
-      XLSX.writeFile(wb, this.pageName + '.xls')
-      this.carregando = false
     }
   } /* Fim Methods */
 } /* Fim export */
 </script>
 
 <style>
-.tbvertical {
-  vertical-align: auto;
-}
-.scrollArea {
-  width: 100%;
-  height: 74vh;
-  overflow-x: hidden;
-
-  padding-top: 20px;
-  -ms-flex: 0 0 650px;
-  flex: 0 0 600px;
-  @media (max-width: 690px) {
-    .my-sidebar {
-      display: none;
-    }
-  }
-}
 </style>

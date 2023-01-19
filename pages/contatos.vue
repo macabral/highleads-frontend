@@ -3,6 +3,12 @@
     <NuxtLayout />
     <b-container fluid>
       <h3 class="cabec">
+        <img
+          src="../assets/livro-de-contato.png"
+          height="30"
+          alt="highleads"
+        >
+        </img>
         {{ pageName }}
       </h3>
       <div v-if="showAlert" style="padding-top:10px;">
@@ -20,7 +26,7 @@
       <div style="padding-top: 10px;">
         <b-input-group>
           <b-input-group-prepend>
-            <b-button variant="outline-info" @click="search()">
+            <b-button variant="outline-info" @click="site = 0; consultor = 0; status = 0; registros()">
               Procurar
             </b-button>
           </b-input-group-prepend>
@@ -28,24 +34,46 @@
           <b-form-input v-model="procurar" type="text" />
 
           <b-input-group-prepend>
-            <b-button variant="outline-info" @click="procurar='', registros()">
+            <b-button variant="outline-info">
+              Consultor
+            </b-button>
+            <b-form-select
+              v-model="consultor"
+              :options="usuariosOpt"
+              @change="registros()"
+            />
+          </b-input-group-prepend>
+
+          <b-input-group-prepend>
+            <b-button variant="outline-info">
+              Site
+            </b-button>
+            <b-form-select
+              v-model="site"
+              :options="sitesOpt"
+              @change="registros()"
+            />
+          </b-input-group-prepend>
+
+          <b-input-group-prepend>
+            <b-button variant="outline-info">
               Status
             </b-button>
             <b-form-select
               v-model="status"
               :options="statusOpt"
-              @change="procurar='', registros()"
+              @change="registros()"
             />
           </b-input-group-prepend>
 
           <b-input-group-append>
-            <b-button variant="outline-secondary" @click="pagina -= 100; registros()">
+            <b-button variant="outline-secondary" @click="registros()">
               &lt;
             </b-button>
-            <b-button variant="outline-secondary" @click="pagina += 100; registros()">
+            <b-button variant="outline-secondary" @click="registros()">
               &gt;
             </b-button>
-            <b-button variant="outline-secondary" @click="procurar = ''; status = 1; registros()">
+            <b-button variant="outline-secondary" @click="procurar = ''; consultor = 0; status = 1; site = 0; registros()">
               X
             </b-button>
             <b-button variant="outline-secondary" title="Exportar XLS" @click="exportar()">
@@ -206,7 +234,10 @@ export default {
       carregando: true,
       totalRegistros: '',
       status: 1,
+      consultor: 0,
       usuariosOpt: [],
+      sitesOpt: [],
+      site: 0,
       statusOpt: [{ value: 0, text: '' }, { value: 1, text: 'Novo' }, { value: 2, text: 'Em Prospecção' }, { value: 3, text: 'Qualificado' }, { value: 4, text: 'Encerrado (+)' }, { value: 5, text: 'Encerrado (-)' }],
       items: [],
       usuariosData: [],
@@ -255,6 +286,7 @@ export default {
       this.$router.push('/')
     }
     this.usuarios()
+    this.sites()
     this.registros()
   },
   methods: {
@@ -273,13 +305,19 @@ export default {
     },
     // -------------------------------------------------------------------------------------- le registros
     registros () {
-      if (this.procurar !== '') {
-        this.search()
-        return
-      }
       this.mensagemErro = ''
       this.carregando = true
-      this.$axios.$get(this.url + '-status/' + this.status, { headers: { Authorization: 'Bearer ' + this.$store.state.token } })
+      const procurar = this.procurar.trim()
+      if (procurar === '' && this.status === 0 && this.consultor === 0 && this.site === 0) {
+        this.status = 1
+      }
+      const filtros = {
+        search: procurar,
+        status: this.status,
+        site: this.site,
+        consultor: this.consultor
+      }
+      this.$axios.$post(this.url + '-search', filtros, { headers: { Authorization: 'Bearer ' + this.$store.state.token } })
         .then((ret) => {
           this.items = ret
           this.totalRegistros = ret.length
@@ -287,13 +325,12 @@ export default {
         })
         .catch((error) => {
           if (error.response.status === 401) {
-            this.refreshToken(this.$store.state.token)
-            if (this.$store.state.token !== '') {
+            if (this.refreshToken()) {
               this.registros()
-            } else {
-              this.mensagemErro = 'Token inválido'
-              this.showAlert = true
             }
+          } else {
+            this.mensagemErro = error
+            this.showErro = true
           }
           this.carregando = false
         })
@@ -325,12 +362,8 @@ export default {
           })
           .catch((error) => {
             if (error.response.status === 401) {
-              this.refreshToken(this.$store.state.token)
-              if (this.$store.state.token !== '') {
+              if (this.refreshToken()) {
                 this.salvar()
-              } else {
-                this.mensagemErro = 'Token inválido'
-                this.showErro = true
               }
             } else {
               this.mensagemErro = error
@@ -346,12 +379,8 @@ export default {
           })
           .catch((error) => {
             if (error.response.status === 401) {
-              this.refreshToken(this.$store.state.token)
-              if (this.$store.state.token !== '') {
+              if (this.refreshToken()) {
                 this.salvar()
-              } else {
-                this.mensagemErro = 'Token inválido'
-                this.showAlert = true
               }
             } else {
               this.mensagemErro = error
@@ -374,16 +403,12 @@ export default {
         })
         .catch((error) => {
           if (error.response.status === 401) {
-            this.refreshToken(this.$store.state.token)
-            if (this.$store.state.token !== '') {
+            if (this.refreshToken()) {
               this.excluirItem()
-            } else {
-              this.mensagemErro = 'Token inválido'
-              this.showAlert = true
             }
           } else {
             this.mensagemErro = error
-            this.showAlert = true
+            this.showErro = true
           }
         })
       this.hideModal('modal-excluir')
@@ -391,29 +416,28 @@ export default {
       this.registros()
     },
     // -------------------------------------------------------------------------------------- procurar
-    search () {
-      if (this.procurar !== '') {
-        this.status = this.statusOpt[0]
-        this.carregando = true
-        this.$axios.$get(this.url + '-search?search=' + this.procurar, { headers: { Authorization: 'Bearer ' + this.$store.state.token } })
-          .then((ret) => {
-            this.items = ret
-            this.carregando = false
-          })
-          .catch((error) => {
-            if (error.response.status === 401) {
-              this.refreshToken(this.$store.state.token)
-              if (this.$store.state.token !== '') {
-                this.search()
-              } else {
-                this.mensagemErro = 'Token inválido'
-                this.showAlert = true
-              }
-            }
-            this.carregando = false
-          })
-      }
-    },
+    // search () {
+    //   if (this.procurar !== '') {
+    //     this.status = this.statusOpt[0]
+    //     this.carregando = true
+    //     this.$axios.$get(this.url + '-search?search=' + this.procurar, { headers: { Authorization: 'Bearer ' + this.$store.state.token } })
+    //       .then((ret) => {
+    //         this.items = ret
+    //         this.carregando = false
+    //       })
+    //       .catch((error) => {
+    //         if (error.response.status === 401) {
+    //           if (this.refreshToken()) {
+    //             this.search()
+    //           }
+    //         } else {
+    //           this.mensagemErro = error
+    //           this.showErro = true
+    //         }
+    //         this.carregando = false
+    //       })
+    //   }
+    // },
     // -------------------------------------------------------------------------------------- exportar
     exportar () {
       this.carregando = true
@@ -424,12 +448,40 @@ export default {
       XLSX.writeFile(wb, this.pageName + '.xls')
       this.carregando = false
     },
+    // -------------------------------------------------------------------------------------- le sites
+    sites () {
+      this.$axios.$get('/v1/sites-all', { headers: { Authorization: 'Bearer ' + this.$store.state.token } })
+        .then((ret) => {
+          this.sitesData = ret
+          const data = [{ value: 0, text: ' ' }]
+          ret.forEach((element) => {
+            const reg = {
+              value: element.id,
+              text: element.pagina
+            }
+            data.push(reg)
+          })
+          this.sitesOpt = data
+          this.carregando = false
+        })
+        .catch((error) => {
+          if (error.response.status === 401) {
+            if (this.refreshToken()) {
+              this.sites()
+            }
+          } else {
+            this.mensagemErro = error
+            this.showErro = true
+          }
+          this.carregando = false
+        })
+    },
     // -------------------------------------------------------------------------------------- le usuarios
     usuarios () {
       this.$axios.$get('/v1/usuarios', { headers: { Authorization: 'Bearer ' + this.$store.state.token } })
         .then((ret) => {
           this.usuariosData = ret
-          const data = []
+          const data = [{ value: 0, text: ' ' }]
           ret.forEach((element) => {
             const reg = {
               value: element.id,
@@ -442,13 +494,12 @@ export default {
         })
         .catch((error) => {
           if (error.response.status === 401) {
-            this.refreshToken(this.$store.state.token)
-            if (this.$store.state.token !== '') {
+            if (this.refreshToken()) {
               this.usuarios()
-            } else {
-              this.mensagemErro = 'Token inválido'
-              this.showAlert = true
             }
+          } else {
+            this.mensagemErro = error
+            this.showErro = true
           }
           this.carregando = false
         })
