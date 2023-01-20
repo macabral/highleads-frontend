@@ -77,7 +77,7 @@
           {{ mensagemErro }}
         </b-alert>
       </div>
-      <b-form>
+      <b-form @submit="salvar">
         <b-row>
           <b-col cols="12" md="12" sm="12">
             <b-form-group label="Nome">
@@ -110,15 +110,15 @@
             </b-form-group>
           </b-col>
         </b-row>
+        <div class="text-right">
+          <b-button type="submit" class="mt-3" variant="primary">
+            Salvar
+          </b-button>
+          <b-button class="mt-3" @click="hideModal('modal-incluir')">
+            Cancelar
+          </b-button>
+        </div>
       </b-form>
-      <div class="text-right">
-        <b-button class="mt-3" variant="primary" @click="salvar(rowSelected.id)">
-          Salvar
-        </b-button>
-        <b-button class="mt-3" @click="hideModal('modal-incluir')">
-          Cancelar
-        </b-button>
-      </div>
     </b-modal>
     <!------------------------------------------------------------------------------------------------- Excluir -->
     <b-modal id="modal-excluir" title="Excluir" hide-footer>
@@ -154,7 +154,7 @@ export default {
       carregando: true,
       totalRegistros: '',
       ativoOpt: [{ value: 1, text: 'Sim' }, { value: 0, text: 'Não' }],
-      perfilOpt: [{ value: 1, text: 'Administrador' }, { value: 2, text: 'Consultor de Vendas' }],
+      perfilOpt: [{ value: 1, text: 'Administrador' }, { value: 2, text: 'Consultor' }],
       items: [],
       fields: [
         {
@@ -185,14 +185,6 @@ export default {
         },
         { key: 'actions', label: 'Ação' }
       ],
-      row: {
-        _id: 0,
-        nome: '',
-        email: '',
-        password: '',
-        ativo: 1,
-        perfil: 1
-      },
       rowSelected: {},
       re: /^(?=[a-zA-Z0-9@._%+-]{6,254}$)[a-zA-Z0-9._%+-]{1,64}@(?:[a-zA-Z0-9-]{1,63}\.){1,8}[a-zA-Z]{2,63}$/
     }
@@ -225,7 +217,7 @@ export default {
       if (value === '1') {
         return 'Administrador'
       } else {
-        return 'Consultor de Vendas'
+        return 'Consultor'
       }
     },
     // -------------------------------------------------------------------------------------- le registros
@@ -252,7 +244,16 @@ export default {
     },
     // -------------------------------------------------------------------------------------- novo
     novo () {
-      this.rowSelected = this.row
+      this.showAlert = false
+      this.showErro = false
+      this.rowSelected = {
+        id: 0,
+        nome: '',
+        email: '',
+        password: '',
+        ativo: 1,
+        perfil: 1
+      }
       this.$root.$emit('bv::show::modal', 'modal-incluir', '#btnShow')
     },
     // -------------------------------------------------------------------------------------- editar
@@ -263,15 +264,17 @@ export default {
       this.$root.$emit('bv::show::modal', 'modal-incluir', '#btnShow')
     },
     // -------------------------------------------------------------------------------------- salvar
-    salvar () {
+    salvar (event) {
+      event.preventDefault()
       if (!this.re.test(String(this.rowSelected.email).toLowerCase())) {
         this.mensagemErro = 'Verifique o email informado.'
         this.showErro = true
         return
       }
+      console.log(this.rowSelected)
       this.mensagemErro = 'Salvando...'
       this.showErro = true
-      if (this.rowSelected._id === 0) {
+      if (this.rowSelected.id === 0) {
         this.rowSelected.password = 'XXX'
         this.$axios.$post(this.url, this.rowSelected, { headers: { Authorization: 'Bearer ' + this.$store.state.token } })
           .then((ret) => {
@@ -317,9 +320,8 @@ export default {
       this.hideModal('modal-excluir')
       this.carregando = true
       this.$axios.$delete(this.url + '/' + this.rowSelected.id, { headers: { Authorization: 'Bearer ' + this.$store.state.token } })
-        .then((ret) => {
-          this.items = ret
-          this.carregando = false
+        .then(() => {
+          this.registros()
         })
         .catch((error) => {
           if (error.response.status === 401) {
@@ -331,7 +333,6 @@ export default {
             this.showErro = true
           }
         })
-      this.registros()
     },
     // -------------------------------------------------------------------------------------- procurar
     search () {

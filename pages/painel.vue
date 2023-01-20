@@ -3,12 +3,6 @@
     <NuxtLayout />
     <b-container fluid>
       <h3 class="cabec">
-        <img
-          src="../assets/painel-de-controle.png"
-          height="30"
-          alt="highleads"
-        >
-        </img>
         {{ pageName }}
       </h3>
       <div v-if="showAlert" style="padding-top:10px;">

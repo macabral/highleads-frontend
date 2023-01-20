@@ -3,12 +3,6 @@
     <NuxtLayout />
     <b-container fluid>
       <h3 class="cabec">
-        <img
-          src="../assets/livro-de-contato.png"
-          height="30"
-          alt="highleads"
-        >
-        </img>
         {{ pageName }}
       </h3>
       <div v-if="showAlert" style="padding-top:10px;">
@@ -128,30 +122,55 @@
       <div>
         <b-tabs content-class="mt-3">
           <b-tab title="Identificação" active>
-            <b-form>
+            <b-form @submit="salvar">
               <b-row>
                 <b-col cols="12" md="12" sm="12">
                   <b-form-group label="Nome">
                     <b-form-input
                       v-model="rowSelected.nome"
                       size="sm"
+                      maxlength="80"
                       required
                     />
                   </b-form-group>
                   <b-form-group label="Empresa">
                     <b-form-input
                       v-model="rowSelected.empresa"
+                      maxlength="80"
                       size="sm"
                     />
                   </b-form-group>
+                </b-col>
+                <b-col cols="6" md="6" sm="6">
                   <b-form-group label="Email">
                     <b-form-input
                       v-model="rowSelected.email"
+                      maxlength="80"
                       size="sm"
                       required
                     />
                   </b-form-group>
-                  <b-form-group label="Consultor de Vendas">
+                </b-col>
+                <b-col cols="6" md="6" sm="6">
+                  <b-form-group label="Telefone">
+                    <b-form-input
+                      v-model="rowSelected.telefone"
+                      size="sm"
+                      maxlength="80"
+                    />
+                  </b-form-group>
+                </b-col>
+                <b-col cols="12" md="12" sm="12">
+                  <b-form-group label="Site">
+                    <b-form-select
+                      v-model="rowSelected.sites_fk"
+                      :options="sitesOpt2"
+                      required
+                      size="sm"
+                      title=""
+                    />
+                  </b-form-group>
+                  <b-form-group label="Consultor">
                     <b-form-select
                       v-model="rowSelected.usuarios_fk"
                       :options="usuariosOpt"
@@ -180,18 +199,18 @@
                   </b-form-group>
                 </b-col>
               </b-row>
+              <div class="text-right">
+                <b-button v-if="rowSelected.id != 0" class="mt-3" variant="danger" @click="excluir()">
+                  Excluir
+                </b-button>
+                <b-button type="submit" class="mt-3" variant="primary">
+                  Salvar
+                </b-button>
+                <b-button class="mt-3" @click="hideModal('modal-incluir')">
+                  Cancelar
+                </b-button>
+              </div>
             </b-form>
-            <div class="text-right">
-              <b-button class="mt-3" variant="danger" @click="excluir(rowSelected.id)">
-                Excluir
-              </b-button>
-              <b-button class="mt-3" variant="primary" @click="salvar(rowSelected.id)">
-                Salvar
-              </b-button>
-              <b-button class="mt-3" @click="hideModal('modal-incluir')">
-                Cancelar
-              </b-button>
-            </div>
           </b-tab>
           <b-tab title="Anotações">
             <Notes :id-contatos="rowSelected.id" />
@@ -237,6 +256,7 @@ export default {
       consultor: 0,
       usuariosOpt: [],
       sitesOpt: [],
+      sitesOpt2: [],
       site: 0,
       statusOpt: [{ value: 0, text: '' }, { value: 1, text: 'Novo' }, { value: 2, text: 'Em Prospecção' }, { value: 3, text: 'Qualificado' }, { value: 4, text: 'Encerrado (+)' }, { value: 5, text: 'Encerrado (-)' }],
       items: [],
@@ -270,15 +290,8 @@ export default {
         },
         { key: 'actions', label: 'Ação' }
       ],
-      row: {
-        id: 0,
-        pagina: '',
-        responsavel: '',
-        email: '',
-        telefone: '',
-        ativo: 'Sim'
-      },
-      rowSelected: {}
+      rowSelected: {},
+      re: /^(?=[a-zA-Z0-9@._%+-]{6,254}$)[a-zA-Z0-9._%+-]{1,64}@(?:[a-zA-Z0-9-]{1,63}\.){1,8}[a-zA-Z]{2,63}$/
     }
   },
   mounted () {
@@ -337,23 +350,64 @@ export default {
     },
     // -------------------------------------------------------------------------------------- novo
     novo () {
-      this.rowSelected = this.row
+      this.mensagemErro = ''
+      this.showAlert = false
+      this.showErro = false
+      this.rowSelected = {
+        id: 0,
+        email: '',
+        telefone: '',
+        empresa: '',
+        score: 0,
+        site: '',
+        nome: '',
+        remoteip: null,
+        status: 1,
+        sites_fk: null,
+        usuarios_fk: null,
+        datahora: null
+      }
       this.$root.$emit('bv::show::modal', 'modal-incluir', '#btnShow')
     },
     // -------------------------------------------------------------------------------------- editar
     editar (item) {
       this.showAlert = false
+      this.mensagemErro = ''
       this.showErro = false
       this.rowSelected = item
       this.$root.$emit('bv::show::modal', 'modal-incluir', '#btnShow')
     },
     // -------------------------------------------------------------------------------------- salvar
-    salvar () {
-      if (this.rowSelected.texto === '') {
+    salvar (event) {
+      event.preventDefault()
+      this.showErro = false
+      this.mensagemErro = ''
+      if (this.rowSelected.email !== '') {
+        const emails = this.rowSelected.email
+        const email = emails.split(';')
+        email.forEach((item) => {
+          if (!this.re.test(String(item).toLowerCase().trim())) {
+            this.mensagemErro = 'Verifique o email informado.'
+            this.showErro = true
+          }
+        })
+      }
+      if (this.rowSelected.sites_fk === 0) {
+        this.mensagemErro = 'Informe o site.'
+        this.showErro = true
+      }
+      if (this.showErro) {
         return
       }
-      if (this.rowSelected._id === 0) {
-        this.rowSelected.password = 'XXX'
+      const site = parseInt(this.rowSelected.sites_fk)
+      this.sitesOpt2.forEach((elem) => {
+        if (elem.value === site) {
+          this.rowSelected.site = elem.text
+        }
+      })
+      if (this.rowSelected.id === 0) {
+        const data = new Date()
+        this.rowSelected.datahora = data.getFullYear() + '-' + (data.getMonth() + 1) + '-' + data.getDate() + ' ' + data.getHours() + ':' + data.getMinutes()
         this.$axios.$post(this.url, this.rowSelected, { headers: { Authorization: 'Bearer ' + this.$store.state.token } })
           .then((ret) => {
             this.items = ret
@@ -398,8 +452,7 @@ export default {
       this.showErro = true
       this.$axios.$delete(this.url + '/' + this.rowSelected.id, { headers: { Authorization: 'Bearer ' + this.$store.state.token } })
         .then((ret) => {
-          this.items = ret
-          this.carregando = false
+          this.registros()
         })
         .catch((error) => {
           if (error.response.status === 401) {
@@ -413,31 +466,7 @@ export default {
         })
       this.hideModal('modal-excluir')
       this.hideModal('modal-incluir')
-      this.registros()
     },
-    // -------------------------------------------------------------------------------------- procurar
-    // search () {
-    //   if (this.procurar !== '') {
-    //     this.status = this.statusOpt[0]
-    //     this.carregando = true
-    //     this.$axios.$get(this.url + '-search?search=' + this.procurar, { headers: { Authorization: 'Bearer ' + this.$store.state.token } })
-    //       .then((ret) => {
-    //         this.items = ret
-    //         this.carregando = false
-    //       })
-    //       .catch((error) => {
-    //         if (error.response.status === 401) {
-    //           if (this.refreshToken()) {
-    //             this.search()
-    //           }
-    //         } else {
-    //           this.mensagemErro = error
-    //           this.showErro = true
-    //         }
-    //         this.carregando = false
-    //       })
-    //   }
-    // },
     // -------------------------------------------------------------------------------------- exportar
     exportar () {
       this.carregando = true
@@ -454,14 +483,17 @@ export default {
         .then((ret) => {
           this.sitesData = ret
           const data = [{ value: 0, text: ' ' }]
+          const data2 = []
           ret.forEach((element) => {
             const reg = {
               value: element.id,
               text: element.pagina
             }
             data.push(reg)
+            data2.push(reg)
           })
           this.sitesOpt = data
+          this.sitesOpt2 = data2
           this.carregando = false
         })
         .catch((error) => {

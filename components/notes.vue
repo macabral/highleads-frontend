@@ -65,7 +65,7 @@
       </div>
     </b-modal>
     <!------------------------------------------------------------------------------------------------- Excluir -->
-    <b-modal id="modal-excluir" title="Excluir" hide-footer>
+    <b-modal id="modal-excluir-nota" title="Excluir" hide-footer>
       <p>
         Confirma excluir {{ pageName }}?<br>
         <b>{{ formatData(rowSelected.created_at) }}</b>
@@ -74,7 +74,7 @@
         <b-button class="mt-3" variant="primary" @click="excluirItem(rowSelected.id)">
           Excluir
         </b-button>
-        <b-button class="mt-3" @click="hideModal('modal-excluir')">
+        <b-button class="mt-3" @click="hideModal('modal-excluir-nota')">
           Cancelar
         </b-button>
       </div>
@@ -206,10 +206,10 @@ export default {
     // -------------------------------------------------------------------------------------- excluir
     excluir (item) {
       this.rowSelected = item
-      this.$root.$emit('bv::show::modal', 'modal-excluir', '#btnShow')
+      this.$root.$emit('bv::show::modal', 'modal-excluir-nota', '#btnShow')
     },
     excluirItem () {
-      this.hideModal('modal-excluir')
+      this.hideModal('modal-excluir-nota')
       this.carregando = true
       this.$axios.$delete(this.url + '/' + this.rowSelected.id, { headers: { Authorization: 'Bearer ' + this.$store.state.token } })
         .then(() => {
