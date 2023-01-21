@@ -328,7 +328,9 @@ export default {
         search: procurar,
         status: this.status,
         site: this.site,
-        consultor: this.consultor
+        consultor: this.consultor,
+        perfil: this.$store.state.usuarioPerfil,
+        idUsuario: this.$store.state.usuarioId
       }
       this.$axios.$post(this.url + '-search', filtros, { headers: { Authorization: 'Bearer ' + this.$store.state.token } })
         .then((ret) => {
@@ -513,13 +515,22 @@ export default {
       this.$axios.$get('/v1/usuarios', { headers: { Authorization: 'Bearer ' + this.$store.state.token } })
         .then((ret) => {
           this.usuariosData = ret
-          const data = [{ value: 0, text: ' ' }]
+          let data = []
+          if (this.$store.state.usuarioPerfil === '1') {
+            data = [{ value: 0, text: ' ' }]
+          } else {
+            data = []
+          }
           ret.forEach((element) => {
             const reg = {
               value: element.id,
               text: element.nome
             }
-            data.push(reg)
+            if (this.$store.state.usuarioPerfil === '1') {
+              data.push(reg)
+            } else if (parseInt(this.$store.state.usuarioId) === parseInt(element.id)) {
+              data.push(reg)
+            }
           })
           this.usuariosOpt = data
           this.carregando = false

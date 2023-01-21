@@ -151,7 +151,7 @@ export default {
     }
   },
   mounted () {
-    if (this.$store.state.token === '') {
+    if (this.$store.state.token === '' || this.$store.state.usuarioPerfil !== '1') {
       this.$router.push('/')
     }
     this.registros()

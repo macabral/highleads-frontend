@@ -190,7 +190,7 @@ export default {
     }
   },
   mounted () {
-    if (this.$store.state.token === '') {
+    if (this.$store.state.token === '' || this.$store.state.usuarioPerfil !== '1') {
       this.$router.push('/')
     }
     this.registros()
@@ -271,7 +271,6 @@ export default {
         this.showErro = true
         return
       }
-      console.log(this.rowSelected)
       this.mensagemErro = 'Salvando...'
       this.showErro = true
       if (this.rowSelected.id === 0) {

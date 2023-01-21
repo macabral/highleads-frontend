@@ -2,7 +2,7 @@ export const state = () => ({
   usuarioId: 0,
   usuarioEmail: '',
   usuarioNome: '',
-  usuarioPerfil: false,
+  usuarioPerfil: 0,
   token: ''
 })
 

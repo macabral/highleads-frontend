@@ -93,7 +93,7 @@ export default {
     registros () {
       this.mensagemErro = ''
       this.carregando = true
-      this.$axios.$get(this.url, { headers: { Authorization: 'Bearer ' + this.$store.state.token } })
+      this.$axios.$get(this.url + '/' + this.$store.state.usuarioPerfil + '/' + this.$store.state.usuarioId, { headers: { Authorization: 'Bearer ' + this.$store.state.token } })
         .then((ret) => {
           this.items = ret
           this.carregando = false

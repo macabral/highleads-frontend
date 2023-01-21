@@ -14,7 +14,7 @@
           </b-nav-item>
 
           <b-nav-item href="/contatos" to="/contatos">
-            Contatos
+            Contatos - Inbound
           </b-nav-item>
 
           <b-nav-item-dropdown v-if="usuarioPerfil == 1" right>
