@@ -14,8 +14,21 @@
           </b-nav-item>
 
           <b-nav-item href="/contatos" to="/contatos">
-            Contatos - Inbound
+            Inbound
           </b-nav-item>
+
+          <b-nav-item href="/outbound" to="/outbound">
+            Outbound
+          </b-nav-item>
+
+          <!-- <b-nav-item-dropdown v-if="usuarioPerfil == 1" right>
+            <template #button-content>
+              <em>Campanhas</em>
+            </template>
+            <b-dropdown-item href="/emails/editor" to="/emails/editor">
+              Editor de emails
+            </b-dropdown-item>
+          </b-nav-item-dropdown> -->
 
           <b-nav-item-dropdown v-if="usuarioPerfil == 1" right>
             <!-- Using 'button-content' slot -->

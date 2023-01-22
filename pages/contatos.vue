@@ -245,7 +245,7 @@ export default {
   components: { Notes },
   data () {
     return {
-      pageName: 'Contatos',
+      pageName: 'Contatos - Inbound',
       url: '/v1/contatos',
       showAlert: false,
       showErro: false,
