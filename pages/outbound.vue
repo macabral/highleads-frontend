@@ -124,6 +124,9 @@
             <b-form-group label="Cliente">
               <b-form-select v-model="rowSelected.iscliente" :options="ativoOpt" />
             </b-form-group>
+            <b-form-group label="Inbound">
+              <b-form-select v-model="rowSelected.iscontato" :options="ativoOpt" />
+            </b-form-group>            
             <b-form-group label="Ativo">
               <b-form-select v-model="rowSelected.ativo" :options="ativoOpt" />
             </b-form-group>
