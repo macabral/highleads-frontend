@@ -5,7 +5,7 @@
       <h3 class="cabec">
         {{ pageName }}
       </h3>
-      <div v-if="showAlert" style="padding-top: 10px">
+      <div v-if="showAlert" style="padding-top:10px;">
         <b-alert v-model="showAlert" dismissible>
           {{ mensagemErro }}
         </b-alert>
@@ -16,8 +16,8 @@
       <b-button variant="primary" @click="novo()">
         Incluir
       </b-button>
-      <br>
-      <div style="padding-top: 10px">
+      <br><br>
+      <div style="padding-top: 10px;">
         <b-input-group>
           <b-input-group-prepend>
             <b-button variant="outline-info" @click="search()">
@@ -28,40 +28,16 @@
           <b-form-input v-model="procurar" type="text" />
 
           <b-input-group-append>
-            <b-button
-              variant="outline-secondary"
-              @click="
-                procurar = '';
-                pageNumber('down');
-                registros();
-              "
-            >
+            <b-button variant="outline-secondary" @click="procurar=''; pageNumber('down'); registros()">
               &lt;
             </b-button>
-            <b-button
-              variant="outline-secondary"
-              @click="
-                procurar = '';
-                pageNumber('up');
-                registros();
-              "
-            >
+            <b-button variant="outline-secondary" @click="procurar=''; pageNumber('up'); registros()">
               &gt;
             </b-button>
-            <b-button
-              variant="outline-secondary"
-              @click="
-                (Page = 1), (procurar = '');
-                registros();
-              "
-            >
+            <b-button variant="outline-secondary" @click="Page=1, procurar=''; registros()">
               X
             </b-button>
-            <b-button
-              variant="outline-secondary"
-              title="Exportar XLS"
-              @click="exportar()"
-            >
+            <b-button variant="outline-secondary" title="Exportar XLS" @click="exportar()">
               Exportar
             </b-button>
           </b-input-group-append>
@@ -72,10 +48,7 @@
       </div>
       <div v-if="carregando" class="text-center">
         <br>
-        <img
-          src="~/assets/loading.gif"
-          width="28px"
-        >
+        <img src="~/assets/loading.gif" width="28px">
       </div>
       <b-table
         v-if="!carregando"
@@ -99,7 +72,7 @@
     </b-container>
     <!------------------------------------------------------------------------------------------------- Incluir  -->
     <b-modal id="modal-incluir" size="lg" :title="pageName" hide-footer>
-      <div v-if="showErro" style="padding-top: 10px">
+      <div v-if="showErro" style="padding-top:10px;">
         <b-alert v-model="showErro" dismissible>
           {{ mensagemErro }}
         </b-alert>
@@ -107,31 +80,19 @@
       <b-form @submit="onSubmit">
         <b-row>
           <b-col cols="12" md="12" sm="12">
-            <b-form-group label="Nome">
+            <b-form-group label="Descrição*">
               <b-form-input
-                v-model="rowSelected.nome"
+                v-model="rowSelected.descricao"
                 size="sm"
-                maxlength="80"
+                maxlength="254"
+                required
               />
-            </b-form-group>
-            <b-form-group label="email*">
-              <b-form-input
-                v-model="rowSelected.email"
-                maxlength="80"
-                size="sm"
-              />
-            </b-form-group>
-            <b-form-group label="Categoria">
-              <b-form-select v-model="rowSelected.categorias_fk" :options="categoriasOpt" />
-            </b-form-group>
-            <b-form-group label="Cliente">
-              <b-form-select v-model="rowSelected.iscliente" :options="ativoOpt" />
-            </b-form-group>
-            <b-form-group label="Inbound">
-              <b-form-select v-model="rowSelected.iscontato" :options="ativoOpt" />
             </b-form-group>
             <b-form-group label="Ativo">
-              <b-form-select v-model="rowSelected.ativo" :options="ativoOpt" />
+              <b-form-select
+                v-model="rowSelected.ativo"
+                :options="ativoOpt"
+              />
             </b-form-group>
           </b-col>
         </b-row>
@@ -148,16 +109,11 @@
     <!------------------------------------------------------------------------------------------------- Excluir -->
     <b-modal id="modal-excluir" title="Excluir" hide-footer>
       <p>
-        Confirma excluir {{ pageName }}?
-        <br>
-        <b>{{ rowSelected.pagina }}</b>
+        Confirma excluir {{ pageName }}?<br>
+        <b>{{ rowSelected.descricao }}</b>
       </p>
       <div class="text-right">
-        <b-button
-          class="mt-3"
-          variant="primary"
-          @click="excluirItem(rowSelected.id)"
-        >
+        <b-button class="mt-3" variant="primary" @click="excluirItem(rowSelected.id)">
           Excluir
         </b-button>
         <b-button class="mt-3" @click="hideModal('modal-excluir')">
@@ -172,39 +128,36 @@
 import * as XLSX from 'xlsx'
 
 export default {
-  name: 'OutboundPage',
+  name: 'CategoriasPage',
   data () {
     return {
-      pageName: 'Contatos - Outbound',
-      url: '/v1/outbound',
+      pageName: 'Categorias',
+      url: '/v1/categorias',
       showAlert: false,
       showErro: false,
       procurar: '',
       mensagemErro: '',
       carregando: true,
       totalRegistros: '',
-      ativoOpt: [
-        { value: 1, text: 'Sim' },
-        { value: 0, text: 'Não' }
-      ],
+      ativoOpt: [{ value: 1, text: 'Sim' }, { value: 0, text: 'Não' }],
       items: [],
       fields: [
         {
-          key: 'nome',
+          key: 'descricao',
           sortable: true,
-          label: 'Nome',
+          label: 'Descrição',
           tdClass: 'tbvertical'
         },
         {
-          key: 'email',
+          key: 'ativo',
           sortable: true,
-          label: 'e-mail',
-          tdClass: 'tbvertical'
+          label: 'Ativo',
+          tdClass: 'tbvertical',
+          formatter: 'ativoData'
         },
         { key: 'actions', label: 'Ação' }
       ],
       rowSelected: {},
-      categoriasOpt: [],
       fristPage: 0,
       lastPage: 0,
       Page: 1,
@@ -212,10 +165,9 @@ export default {
     }
   },
   mounted () {
-    if (this.$store.state.token === '') {
+    if (this.$store.state.token === '' || this.$store.state.usuarioPerfil !== '1') {
       this.$router.push('/')
     }
-    this.categorias()
     this.registros()
   },
   methods: {
@@ -229,7 +181,7 @@ export default {
     },
     // --------------------------------------------------------------------------------------  Ativo/Inativo
     ativoData (value) {
-      if (value === '1') {
+      if (value === 1) {
         return 'Sim'
       } else {
         return 'Não'
@@ -253,11 +205,8 @@ export default {
     registros () {
       this.showAlert = false
       this.carregando = true
-      const url = this.url + '/' + this.$store.state.usuarioPerfil + '/' + this.$store.state.usuarioId + '?page=' + this.Page
-      this.$axios
-        .$get(url, {
-          headers: { Authorization: 'Bearer ' + this.$store.state.token }
-        })
+      const url = this.url + '?page=' + this.Page
+      this.$axios.$get(url, { headers: { Authorization: 'Bearer ' + this.$store.state.token } })
         .then((ret) => {
           this.items = ret.data
           this.totalRegistros = ret.total
@@ -282,12 +231,7 @@ export default {
       this.showErro = false
       this.rowSelected = {
         id: 0,
-        nome: '',
-        email: '',
-        usuarios_fk: this.$store.state.usuarioId,
-        categorias_fk: null,
-        iscliente: 0,
-        iscontato: 0,
+        descricao: '',
         ativo: 1
       }
       this.$root.$emit('bv::show::modal', 'modal-incluir', '#btnShow')
@@ -302,26 +246,12 @@ export default {
     // -------------------------------------------------------------------------------------- salvar
     onSubmit (event) {
       event.preventDefault()
-      if (this.rowSelected.pagina === '') {
+      if (this.rowSelected.descricao === '') {
         return
       }
       this.showErro = false
-      const emails = this.rowSelected.email
-      const email = emails.split(';')
-      email.forEach((item) => {
-        if (!this.re.test(String(item).toLowerCase().trim())) {
-          this.mensagemErro = 'Verifique o email informado.'
-          this.showErro = true
-        }
-      })
-      if (this.showErro) {
-        return
-      }
       if (this.rowSelected.id === 0) {
-        this.$axios
-          .$post(this.url, this.rowSelected, {
-            headers: { Authorization: 'Bearer ' + this.$store.state.token }
-          })
+        this.$axios.$post(this.url, this.rowSelected, { headers: { Authorization: 'Bearer ' + this.$store.state.token } })
           .then((ret) => {
             this.hideModal('modal-incluir')
             this.registros()
@@ -331,9 +261,6 @@ export default {
               if (this.refreshToken()) {
                 this.onSubmit()
               }
-            } else if (error.response.status === 404) {
-              this.mensagemErro = 'Email já cadastrado. '
-              this.showErro = true
             } else {
               this.mensagemErro = error
               this.showErro = true
@@ -342,10 +269,7 @@ export default {
       } else {
         this.mensagemErro = 'Salvando...'
         this.showErro = true
-        this.$axios
-          .$put(this.url + '/' + this.rowSelected.id, this.rowSelected, {
-            headers: { Authorization: 'Bearer ' + this.$store.state.token }
-          })
+        this.$axios.$put(this.url + '/' + this.rowSelected.id, this.rowSelected, { headers: { Authorization: 'Bearer ' + this.$store.state.token } })
           .then((ret) => {
             this.hideModal('modal-incluir')
             this.registros()
@@ -370,10 +294,7 @@ export default {
     excluirItem () {
       this.hideModal('modal-excluir')
       this.carregando = true
-      this.$axios
-        .$delete(this.url + '/' + this.rowSelected.id, {
-          headers: { Authorization: 'Bearer ' + this.$store.state.token }
-        })
+      this.$axios.$delete(this.url + '/' + this.rowSelected.id, { headers: { Authorization: 'Bearer ' + this.$store.state.token } })
         .then((ret) => {
           this.registros()
         })
@@ -393,10 +314,7 @@ export default {
     search () {
       if (this.procurar !== '') {
         this.carregando = true
-        this.$axios
-          .$get(this.url + '-search' + '/' + this.$store.state.usuarioPerfil + '/' + this.$store.state.usuarioId + '?search=' + this.procurar, {
-            headers: { Authorization: 'Bearer ' + this.$store.state.token }
-          })
+        this.$axios.$get(this.url + '-search?site=' + this.procurar, { headers: { Authorization: 'Bearer ' + this.$store.state.token } })
           .then((ret) => {
             this.items = ret
             this.totalRegistros = ret.length
@@ -415,33 +333,6 @@ export default {
           })
       }
     },
-    // -------------------------------------------------------------------------------------- le categorias
-    categorias () {
-      this.$axios.$get('/v1/categorias-all', { headers: { Authorization: 'Bearer ' + this.$store.state.token } })
-        .then((ret) => {
-          const data = []
-          ret.forEach((element) => {
-            const reg = {
-              value: element.id,
-              text: element.descricao
-            }
-            data.push(reg)
-          })
-          this.categoriasOpt = data
-          this.carregando = false
-        })
-        .catch((error) => {
-          if (error.response.status === 401) {
-            if (this.refreshToken()) {
-              this.usuarios()
-            }
-          } else {
-            this.mensagemErro = error
-            this.showErro = true
-          }
-          this.carregando = false
-        })
-    },
     // -------------------------------------------------------------------------------------- exportar
     exportar () {
       if (this.procurar !== '') {
@@ -450,10 +341,7 @@ export default {
         XLSX.utils.book_append_sheet(wb, data, 'data')
         XLSX.writeFile(wb, this.pageName + '.xls')
       } else {
-        this.$axios
-          .$get(this.url + '-all', {
-            headers: { Authorization: 'Bearer ' + this.$store.state.token }
-          })
+        this.$axios.$get(this.url + '-all', { headers: { Authorization: 'Bearer ' + this.$store.state.token } })
           .then((ret) => {
             const data = XLSX.utils.json_to_sheet(ret)
             const wb = XLSX.utils.book_new()

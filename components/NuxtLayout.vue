@@ -35,6 +35,9 @@
             <template #button-content>
               <em>Cadastros</em>
             </template>
+            <b-dropdown-item href="/cadastros/categorias" to="/cadastros/categorias">
+              Categorias
+            </b-dropdown-item>
             <b-dropdown-item href="/cadastros/sites" to="/cadastros/sites">
               Sites (landing Pages)
             </b-dropdown-item>
