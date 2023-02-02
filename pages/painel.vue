@@ -99,13 +99,18 @@ export default {
           this.carregando = false
         })
         .catch((error) => {
+          if (!error.response) {
+            this.mensagemErro = 'Erro ao conectar ao servidor backend.'
+            this.showAlert = true
+            this.carregando = false
+          }
           if (error.response.status === 401) {
             if (this.refreshToken()) {
               this.registros()
             }
           } else {
             this.mensagemErro = error
-            this.showErro = true
+            this.showAlert = true
           }
           this.carregando = false
         })

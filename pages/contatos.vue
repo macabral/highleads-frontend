@@ -89,7 +89,7 @@
           <div v-for="element in items" :key="element.id">
             <b-card
               :title="element.nome"
-              style="width: 30rem;padding-right:5px;padding-bottom: 5px;"
+              style="width: 25rem;padding-right:5px;padding-bottom: 5px;"
             >
               <b-card-text>
                 {{ element.empresa }}<br>
@@ -339,6 +339,11 @@ export default {
           this.carregando = false
         })
         .catch((error) => {
+          if (!error.response) {
+            this.mensagemErro = 'Erro ao conectar ao servidor backend.'
+            this.showAlert = true
+            this.carregando = false
+          }
           if (error.response.status === 401) {
             if (this.refreshToken()) {
               this.registros()
@@ -417,6 +422,11 @@ export default {
             this.registros()
           })
           .catch((error) => {
+            if (!error.response) {
+              this.mensagemErro = 'Erro ao conectar ao servidor backend.'
+              this.showAlert = true
+              this.carregando = false
+            }
             if (error.response.status === 401) {
               if (this.refreshToken()) {
                 this.salvar()
@@ -434,6 +444,11 @@ export default {
             this.registros()
           })
           .catch((error) => {
+            if (!error.response) {
+              this.mensagemErro = 'Erro ao conectar ao servidor backend.'
+              this.showAlert = true
+              this.carregando = false
+            }
             if (error.response.status === 401) {
               if (this.refreshToken()) {
                 this.salvar()
@@ -457,6 +472,11 @@ export default {
           this.registros()
         })
         .catch((error) => {
+          if (!error.response) {
+            this.mensagemErro = 'Erro ao conectar ao servidor backend.'
+            this.showAlert = true
+            this.carregando = false
+          }
           if (error.response.status === 401) {
             if (this.refreshToken()) {
               this.excluirItem()
@@ -499,6 +519,11 @@ export default {
           this.carregando = false
         })
         .catch((error) => {
+          if (!error.response) {
+            this.mensagemErro = 'Erro ao conectar ao servidor backend.'
+            this.showAlert = true
+            this.carregando = false
+          }
           if (error.response.status === 401) {
             if (this.refreshToken()) {
               this.sites()
@@ -536,6 +561,11 @@ export default {
           this.carregando = false
         })
         .catch((error) => {
+          if (!error.response) {
+            this.mensagemErro = 'Erro ao conectar ao servidor backend.'
+            this.showAlert = true
+            this.carregando = false
+          }
           if (error.response.status === 401) {
             if (this.refreshToken()) {
               this.usuarios()

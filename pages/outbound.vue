@@ -5,9 +5,9 @@
       <h3 class="cabec">
         {{ pageName }}
       </h3>
-      <div v-if="showAlert" style="padding-top: 10px">
-        <b-alert v-model="showAlert" dismissible>
-          {{ mensagemErro }}
+      <div v-if="showMsg" style="padding-top: 10px">
+        <b-alert v-model="showMsg" dismissible>
+          {{ mensagem }}
         </b-alert>
       </div>
       <b-button @click="voltar()">
@@ -59,7 +59,14 @@
             </b-button>
             <b-button
               variant="outline-secondary"
-              title="Exportar XLS"
+              title="Importar"
+              @click="importar()"
+            >
+              Importar
+            </b-button>
+            <b-button
+              variant="outline-secondary"
+              title="Exportar"
               @click="exportar()"
             >
               Exportar
@@ -99,9 +106,9 @@
     </b-container>
     <!------------------------------------------------------------------------------------------------- Incluir  -->
     <b-modal id="modal-incluir" size="lg" :title="pageName" hide-footer>
-      <div v-if="showErro" style="padding-top: 10px">
-        <b-alert v-model="showErro" dismissible>
-          {{ mensagemErro }}
+      <div v-if="showAlert" style="padding-top:10px;">
+        <b-alert v-model="showAlert" dismissible>
+          {{ mensagemAlert }}
         </b-alert>
       </div>
       <b-form @submit="onSubmit">
@@ -117,6 +124,7 @@
             <b-form-group label="email*">
               <b-form-input
                 v-model="rowSelected.email"
+                required
                 maxlength="80"
                 size="sm"
               />
@@ -145,6 +153,10 @@
         </div>
       </b-form>
     </b-modal>
+    <!------------------------------------------------------------------------------------------------- Importar -->
+    <b-modal id="modal-importar" title="Importar" hide-footer @hide="registros()">
+      <file-upload />
+    </b-modal>
     <!------------------------------------------------------------------------------------------------- Excluir -->
     <b-modal id="modal-excluir" title="Excluir" hide-footer>
       <p>
@@ -170,17 +182,22 @@
 
 <script>
 import * as XLSX from 'xlsx'
+import FileUpload from '@/components/FileUpload.vue'
 
 export default {
   name: 'OutboundPage',
+  components: {
+    FileUpload
+  },
   data () {
     return {
       pageName: 'Contatos - Outbound',
       url: '/v1/outbound',
-      showAlert: false,
-      showErro: false,
       procurar: '',
-      mensagemErro: '',
+      mensagem: '',
+      mensagemAlert: '',
+      showMsg: false,
+      showAlert: true,
       carregando: true,
       totalRegistros: '',
       ativoOpt: [
@@ -251,7 +268,7 @@ export default {
     },
     // -------------------------------------------------------------------------------------- le registros
     registros () {
-      this.showAlert = false
+      this.showMsg = false
       this.carregando = true
       const url = this.url + '/' + this.$store.state.usuarioPerfil + '/' + this.$store.state.usuarioId + '?page=' + this.Page
       this.$axios
@@ -266,20 +283,26 @@ export default {
           this.carregando = false
         })
         .catch((error) => {
+          if (!error.response) {
+            this.mensagem = 'Erro ao conectar ao servidor backend.'
+            this.showMsg = true
+            this.carregando = false
+          }
           if (error.response.status === 401) {
             if (this.refreshToken()) {
               this.registros()
             }
           } else {
-            this.mensagemErro = error
-            this.showErro = true
+            this.carregando = false
+            this.mensagem = error
+            this.showMsg = true
           }
-          this.carregando = false
         })
     },
     // -------------------------------------------------------------------------------------- novo
     novo () {
-      this.showErro = false
+      this.mensagemAlert = ''
+      this.showAlert = false
       this.rowSelected = {
         id: 0,
         nome: '',
@@ -295,28 +318,28 @@ export default {
     // -------------------------------------------------------------------------------------- editar
     editar (item) {
       this.showAlert = false
-      this.showErro = false
+      this.showMsg = false
       this.rowSelected = item
       this.$root.$emit('bv::show::modal', 'modal-incluir', '#btnShow')
     },
     // -------------------------------------------------------------------------------------- salvar
     onSubmit (event) {
       event.preventDefault()
-      if (this.rowSelected.pagina === '') {
-        return
-      }
-      this.showErro = false
+      this.mensagemAlert = ''
+      this.showAlert = false
       const emails = this.rowSelected.email
       const email = emails.split(';')
       email.forEach((item) => {
         if (!this.re.test(String(item).toLowerCase().trim())) {
-          this.mensagemErro = 'Verifique o email informado.'
-          this.showErro = true
+          this.mensagemAlert = 'Verifique o email informado.'
+          this.showAlert = true
         }
       })
-      if (this.showErro) {
+      if (this.showAlert) {
         return
       }
+      this.mensagemAlert = 'Salvando...'
+      this.showAlert = true
       if (this.rowSelected.id === 0) {
         this.$axios
           .$post(this.url, this.rowSelected, {
@@ -327,37 +350,47 @@ export default {
             this.registros()
           })
           .catch((error) => {
+            if (!error.response) {
+              this.mensagemAlert = 'Erro ao conectar ao servidor backend.'
+              this.showAlert = true
+              this.carregando = false
+            }
             if (error.response.status === 401) {
               if (this.refreshToken()) {
                 this.onSubmit()
               }
             } else if (error.response.status === 404) {
-              this.mensagemErro = 'Email já cadastrado. '
-              this.showErro = true
+              this.mensagemAlert = 'Email já cadastrado. '
+              this.showAlert = true
             } else {
-              this.mensagemErro = error
-              this.showErro = true
+              this.mensagemAlert = error
+              this.showAlert = true
             }
           })
       } else {
-        this.mensagemErro = 'Salvando...'
-        this.showErro = true
         this.$axios
           .$put(this.url + '/' + this.rowSelected.id, this.rowSelected, {
             headers: { Authorization: 'Bearer ' + this.$store.state.token }
           })
           .then((ret) => {
             this.hideModal('modal-incluir')
+            this.mensagemAlert = ''
+            this.showAlert = false
             this.registros()
           })
           .catch((error) => {
+            if (!error.response) {
+              this.mensagemAlert = 'Erro ao conectar ao servidor backend.'
+              this.showAlert = true
+              this.carregando = false
+            }
             if (error.response.status === 401) {
               if (this.refreshToken()) {
                 this.onSubmit()
               }
             } else {
-              this.mensagemErro = error
-              this.showErro = true
+              this.mensagemAlert = error
+              this.showAlert = true
             }
           })
       }
@@ -378,13 +411,18 @@ export default {
           this.registros()
         })
         .catch((error) => {
+          if (!error.response) {
+            this.mensagem = 'Erro ao conectar ao servidor backend.'
+            this.showMsg = true
+            this.carregando = false
+          }
           if (error.response.status === 401) {
             if (this.refreshToken()) {
               this.excluirItem()
             }
           } else {
-            this.mensagemErro = error
-            this.showErro = true
+            this.mensagem = error
+            this.showMsg = true
           }
         })
       this.carregando = false
@@ -408,8 +446,8 @@ export default {
                 this.search()
               }
             } else {
-              this.mensagemErro = error
-              this.showErro = true
+              this.mensagem = error
+              this.showMsg = true
             }
             this.carregando = false
           })
@@ -436,11 +474,15 @@ export default {
               this.usuarios()
             }
           } else {
-            this.mensagemErro = error
-            this.showErro = true
+            this.mensagem = error
+            this.showMsg = true
           }
           this.carregando = false
         })
+    },
+    // -------------------------------------------------------------------------------------- importar
+    importar () {
+      this.$root.$emit('bv::show::modal', 'modal-importar', '#btnShow')
     },
     // -------------------------------------------------------------------------------------- exportar
     exportar () {
@@ -466,8 +508,8 @@ export default {
                 this.exportar()
               }
             } else {
-              this.mensagemErro = error
-              this.showErro = true
+              this.mensagem = error
+              this.showMsg = true
             }
           })
       }
