@@ -15,3 +15,9 @@ html {
     background-color: rgba(195, 147, 251, 0.863);
     color: white;
 }
+
+.fundo {
+    height: 100vh;
+    background-image: url("../assets/background-1.jpg");
+    background-size: 100% 100%;
+  }

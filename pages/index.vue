@@ -276,6 +276,12 @@ export default {
    padding: 10px;
 }
 
+.fundo {
+  height: 100vh;
+  background-image: url("../assets/background-1.jpg");
+  background-repeat: no-repeat, repeat;
+  background-size: 100% 100%;
+}
 .login-page {
   align-items: center;
   display: flex;
@@ -284,7 +290,7 @@ export default {
     background-size: cover;
     height: 100%;
     position: absolute;
-     width: 100%;
+    width: 100%;
   }
   .fade-enter-active,
   .fade-leave-active {

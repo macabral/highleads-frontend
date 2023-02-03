@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="fundo">
     <NuxtLayout />
     <b-container fluid>
       <h3 class="cabec">
@@ -17,7 +17,7 @@
         Incluir
       </b-button>
       <br><br>
-      <div style="padding-top: 10px;">
+      <div style="background-color: cyan;">
         <b-input-group>
           <b-input-group-prepend>
             <b-button variant="outline-info" @click="search()">
@@ -42,9 +42,9 @@
             </b-button>
           </b-input-group-append>
         </b-input-group>
-        <div v-if="!carregando" class="text-right">
-          {{ totalRegistros }} registros encontrados (15 registros por página)
-        </div>
+      </div>
+      <div v-if="!carregando" class="text-right">
+        {{ totalRegistros }} registros encontrados (15 registros por página)
       </div>
       <div v-if="carregando" class="text-center">
         <br>

@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="fundo">
     <NuxtLayout />
     <b-container fluid>
       <h3 class="cabec">
@@ -17,7 +17,7 @@
         Incluir
       </b-button>
       <br><br>
-      <div style="padding-top: 10px;">
+      <div style="background-color: cyan;">
         <b-input-group>
           <b-input-group-prepend>
             <b-button variant="outline-info" @click="site = 0; consultor = 0; status = 0; registros()">
@@ -61,13 +61,13 @@
           </b-input-group-prepend>
 
           <b-input-group-append>
-            <b-button variant="outline-secondary" @click="registros()">
+            <b-button variant="outline-secondary" @click="pageNumber('down'); registros()">
               &lt;
             </b-button>
-            <b-button variant="outline-secondary" @click="registros()">
+            <b-button variant="outline-secondary" @click="pageNumber('up'); registros()">
               &gt;
             </b-button>
-            <b-button variant="outline-secondary" @click="procurar = ''; consultor = 0; status = 1; site = 0; registros()">
+            <b-button variant="outline-secondary" @click="Page=1, procurar = ''; consultor = 0; status = 1; site = 0; registros()">
               X
             </b-button>
             <b-button variant="outline-secondary" title="Exportar XLS" @click="exportar()">
@@ -77,7 +77,7 @@
         </b-input-group>
       </div>
       <div v-if="!carregando" class="text-right">
-        {{ totalRegistros }} registros encontrados.
+        {{ totalRegistros }} registros encontrados (8 registros por página)
       </div>
       <div v-if="carregando" class="text-center">
         <br>
@@ -252,6 +252,9 @@ export default {
       mensagemErro: '',
       carregando: true,
       totalRegistros: '',
+      Page: 1,
+      fristPage: 0,
+      lastPage: 0,
       status: 1,
       consultor: 0,
       usuariosOpt: [],
@@ -316,6 +319,20 @@ export default {
       const data = new Date(value)
       return data.toLocaleDateString('pt-Br') + ' ' + ((data.getHours() < 10) ? '0' + data.getHours() : data.getHours()) + ':' + ((data.getMinutes() < 10) ? '0' + data.getMinutes() : data.getMinutes())
     },
+    // -------------------------------------------------------------------------------------- Page
+    pageNumber (flag) {
+      if (flag === 'up') {
+        this.Page = this.Page + 1
+        if (this.Page > this.lastPage) {
+          this.Page = this.lastPage
+        }
+      } else {
+        this.Page = this.Page - 1
+        if (this.Page < 1) {
+          this.Page = 1
+        }
+      }
+    },
     // -------------------------------------------------------------------------------------- le registros
     registros () {
       this.mensagemErro = ''
@@ -330,12 +347,16 @@ export default {
         site: this.site,
         consultor: this.consultor,
         perfil: this.$store.state.usuarioPerfil,
-        idUsuario: this.$store.state.usuarioId
+        idUsuario: this.$store.state.usuarioId,
+        page: this.Page
       }
-      this.$axios.$post(this.url + '-search', filtros, { headers: { Authorization: 'Bearer ' + this.$store.state.token } })
+      const url = this.url + '-search'
+      this.$axios.$post(url, filtros, { headers: { Authorization: 'Bearer ' + this.$store.state.token } })
         .then((ret) => {
-          this.items = ret
-          this.totalRegistros = ret.length
+          this.items = ret.data
+          this.totalRegistros = ret.total
+          this.fristPage = ret.form
+          this.lastPage = ret.last_page
           this.carregando = false
         })
         .catch((error) => {

@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="fundo">
     <NuxtLayout />
     <b-container fluid>
       <h3 class="cabec">
@@ -16,16 +16,20 @@
         <img src="~/assets/loading.gif" width="28px">
       </div>
       <h3>Site/Status</h3>
-      <b-table
-        v-if="!carregando"
-        responsive
-        class="table scrollArea"
-        striped
-        hover
-        small
-        :items="items"
-        :fields="fields"
-      />
+      <b-row>
+        <b-col cols="6">
+          <b-table
+            v-if="!carregando"
+            responsive
+            class="table scrollArea"
+            striped
+            hover
+            small
+            :items="items"
+            :fields="fields"
+          />
+        </b-col>
+      </b-row>
     </b-container>
   </div>
 </template>
@@ -46,38 +50,49 @@ export default {
         {
           key: 'site',
           sortable: true,
-          label: 'site',
-          tdClass: 'tbvertical'
+          label: 'site'
+        },
+        {
+          key: 'total',
+          sortable: true,
+          label: 'Total',
+          tdClass: 'center-text',
+          thClass: 'center-text'
         },
         {
           key: '1',
           sortable: true,
           label: 'Novo',
-          tdClass: 'tbvertical'
+          tdClass: 'center-text',
+          thClass: 'center-text'
         },
         {
           key: '2',
           sortable: true,
-          label: 'Em Prospecção',
-          tdClass: 'tbvertical'
+          label: 'Em Prosp.',
+          tdClass: 'center-text',
+          thClass: 'center-text'
         },
         {
           key: '3',
           sortable: true,
           label: 'Qualificado',
-          tdClass: 'tbvertical'
+          tdClass: 'center-text',
+          thClass: 'center-text'
         },
         {
           key: '4',
           sortable: true,
           label: 'Encerrado (-)',
-          tdClass: 'tbvertical'
+          tdClass: 'center-text',
+          thClass: 'center-text'
         },
         {
           key: '5',
           sortable: true,
           label: 'Encerrado (+)',
-          tdClass: 'tbvertical'
+          tdClass: 'center-text',
+          thClass: 'center-text'
         }
       ]
     }
@@ -122,6 +137,13 @@ export default {
 <style>
 .tbvertical {
   vertical-align: auto;
+}
+.table {
+  font-size: 0.9em;
+  background-color: white;
+}
+.center-text {
+  text-align: center;
 }
 .scrollArea {
   width: 100%;
