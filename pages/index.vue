@@ -5,13 +5,13 @@
         <img src="../assets/highleads.png" height="30" alt="logo empresa">
       </b-navbar-brand>
     </b-navbar>
-    <div class="login-page">
-      <div class="container">
+    <div class="container">
+      <div style="margin-top: 5vh;">
         <b-row>
-          <div class="col-lg-6 col-md-6 col-sm-8 mx-auto">
+          <div class="col-lg-5 col-md-5 col-sm-5 mx-auto">
             <div class="card login">
               <div class="text-center">
-                <img src="../assets/login.jpg" width="100%">
+                <img src="../assets/login.jpg" width="100%" height="90%">
                 <br><br>
               </div>
               <b-alert v-show="mensagemErro != ''" v-model="showAlert" dismissible>
@@ -172,8 +172,8 @@ export default {
           this.$store.commit('usuarioId', ret.id)
           this.$router.push('/painel')
         })
-        .catch(() => {
-          this.mensagemErro = 'Não foi possível logar. Verifique seu email/senha.'
+        .catch((error) => {
+          this.mensagemErro = 'Não foi possível logar. Verifique seu email/senha. ' + error
           this.showAlert = true
         })
     },
@@ -204,8 +204,8 @@ export default {
           this.mensagemErro = 'O Código de Confirmação foi encaminhado para o seu email.'
           this.showAlert = true
         })
-        .catch(() => {
-          this.mensagemErro = 'O email não foi encontrado no cadastro de Usuários. Por favor, verifique com o Administrador do Sistema.'
+        .catch((error) => {
+          this.mensagemErro = 'O email não foi encontrado no cadastro de Usuários. Por favor, verifique com o Administrador do Sistema. ' + error
           this.showAlert = true
         })
     },
@@ -263,8 +263,8 @@ export default {
           this.mensagemErro = 'Senha alterada com sucesso!'
           this.showAlert = true
         })
-        .catch((e) => {
-          this.mensagemErro = 'Não foi possível alterar a senha. Verifique seu email e o Código de Confirmação. O Código de Confirmação tem validade de 1 hora e não pode ser reutilizado.'
+        .catch((error) => {
+          this.mensagemErro = 'Não foi possível alterar a senha. Verifique seu email e o Código de Confirmação. O Código de Confirmação tem validade de 1 hora e não pode ser reutilizado. ' + error
           this.showAlert = true
         })
     }
@@ -281,52 +281,6 @@ export default {
   background-image: url("../assets/background-1.jpg");
   background-repeat: no-repeat, repeat;
   background-size: 100% 100%;
-}
-.login-page {
-  align-items: center;
-  display: flex;
-  height: 70vh;
-  .wallpaper-login {
-    background-size: cover;
-    height: 100%;
-    position: absolute;
-    width: 100%;
-  }
-  .fade-enter-active,
-  .fade-leave-active {
-  transition: opacity .5s;
-}
-   .fade-enter,
-   .fade-leave-to {
-      opacity: 0;
-   }
-
-   h1 {
-      margin-bottom: 1.5rem;
-   }
-}
-
-.error {
-   animation-name: errorShake;
-   animation-duration: 0.3s;
-}
-
-@keyframes errorShake {
-   0% {
-      transform: translateX(-25px);
-   }
-   25% {
-      transform: translateX(25px);
-   }
-   50% {
-      transform: translateX(-25px);
-   }
-   75% {
-      transform: translateX(25px);
-   }
-   100% {
-      transform: translateX(0);
-   }
 }
 
 .linha {

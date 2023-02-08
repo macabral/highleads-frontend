@@ -181,7 +181,7 @@ export default {
     },
     // --------------------------------------------------------------------------------------  Ativo/Inativo
     ativoData (value) {
-      if (value === 1) {
+      if (value === '1') {
         return 'Sim'
       } else {
         return 'Não'
@@ -261,6 +261,9 @@ export default {
               if (this.refreshToken()) {
                 this.onSubmit()
               }
+            } else if (error.response.status === 404) {
+              this.mensagemErro = 'Não foi possível salvar. Verifique se a Categoria já existe.'
+              this.showErro = true
             } else {
               this.mensagemErro = error
               this.showErro = true
@@ -279,6 +282,9 @@ export default {
               if (this.refreshToken()) {
                 this.onSubmit()
               }
+            } else if (error.response.status === 404) {
+              this.mensagemErro = 'Não foi possível salvar. Verifique se a Categoria já existe.'
+              this.showErro = true
             } else {
               this.mensagemErro = error
               this.showErro = true

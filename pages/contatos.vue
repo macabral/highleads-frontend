@@ -124,7 +124,7 @@
           <b-tab title="Identificação" active>
             <b-form @submit="salvar">
               <b-row>
-                <b-col cols="12" md="12" sm="12">
+                <b-col cols="6" md="6" sm="6">
                   <b-form-group label="Nome">
                     <b-form-input
                       v-model="rowSelected.nome"
@@ -133,6 +133,8 @@
                       required
                     />
                   </b-form-group>
+                </b-col>
+                <b-col cols="6" md="6" sm="6">
                   <b-form-group label="Empresa">
                     <b-form-input
                       v-model="rowSelected.empresa"
@@ -141,6 +143,8 @@
                     />
                   </b-form-group>
                 </b-col>
+              </b-row>
+              <b-row>
                 <b-col cols="6" md="6" sm="6">
                   <b-form-group label="Email">
                     <b-form-input
@@ -353,6 +357,7 @@ export default {
       const url = this.url + '-search'
       this.$axios.$post(url, filtros, { headers: { Authorization: 'Bearer ' + this.$store.state.token } })
         .then((ret) => {
+          console.log(ret)
           this.items = ret.data
           this.totalRegistros = ret.total
           this.fristPage = ret.form

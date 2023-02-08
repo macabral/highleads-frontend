@@ -27,13 +27,20 @@
 
           <b-form-input v-model="procurar" type="text" />
 
+          <b-input-group-prepend>
+            <b-button variant="outline-info">
+              Categoria
+            </b-button>
+            <b-form-select v-model="categorias_fk" :options="categoriasOpt" @change="search()" />
+          </b-input-group-prepend>
+
           <b-input-group-append>
             <b-button
               variant="outline-secondary"
               @click="
                 procurar = '';
                 pageNumber('down');
-                registros();
+                search();
               "
             >
               &lt;
@@ -43,7 +50,7 @@
               @click="
                 procurar = '';
                 pageNumber('up');
-                registros();
+                search();
               "
             >
               &gt;
@@ -51,8 +58,8 @@
             <b-button
               variant="outline-secondary"
               @click="
-                (Page = 1), (procurar = '');
-                registros();
+                (Page = 1), (procurar = ''); (categorias_fk = 0);
+                search();
               "
             >
               X
@@ -105,7 +112,7 @@
       </b-table>
     </b-container>
     <!------------------------------------------------------------------------------------------------- Incluir  -->
-    <b-modal id="modal-incluir" size="lg" :title="pageName" hide-footer>
+    <b-modal id="modal-incluir" size="xl" :title="pageName" hide-footer>
       <div v-if="showAlert" style="padding-top:10px;">
         <b-alert v-model="showAlert" dismissible>
           {{ mensagemAlert }}
@@ -113,7 +120,7 @@
       </div>
       <b-form @submit="onSubmit">
         <b-row>
-          <b-col cols="12" md="12" sm="12">
+          <b-col cols="6" md="6" sm="6">
             <b-form-group label="Nome">
               <b-form-input
                 v-model="rowSelected.nome"
@@ -121,6 +128,8 @@
                 maxlength="80"
               />
             </b-form-group>
+          </b-col>
+          <b-col cols="6" md="6" sm="6">
             <b-form-group label="email*">
               <b-form-input
                 v-model="rowSelected.email"
@@ -129,15 +138,69 @@
                 size="sm"
               />
             </b-form-group>
+          </b-col>
+        </b-row>
+        <b-row>
+          <b-col cols="6" md="6" sm="6">
+            <b-form-group label="Empresa">
+              <b-form-input
+                v-model="rowSelected.empresa"
+                maxlength="120"
+                size="sm"
+              />
+            </b-form-group>
+          </b-col>
+          <b-col cols="6" md="6" sm="6">
+            <b-form-group label="Posição">
+              <b-form-input
+                v-model="rowSelected.posicao"
+                maxlength="120"
+                size="sm"
+              />
+            </b-form-group>
+          </b-col>
+        </b-row>
+        <b-row>
+          <b-col cols="6" md="6" sm="6">
+            <b-form-group label="Telefone">
+              <b-form-input
+                v-model="rowSelected.telefone"
+                maxlength="120"
+                size="sm"
+              />
+            </b-form-group>
+          </b-col>
+          <b-col cols="6" md="6" sm="6">
+            <b-form-group label="Cidade">
+              <b-form-input
+                v-model="rowSelected.cidade"
+                maxlength="120"
+                size="sm"
+              />
+            </b-form-group>
+          </b-col>
+        </b-row>
+        <b-row>
+          <b-col cols="12" md="12" sm="12">
             <b-form-group label="Categoria">
               <b-form-select v-model="rowSelected.categorias_fk" :options="categoriasOpt" />
             </b-form-group>
+          </b-col>
+        </b-row>
+        <b-row>
+          <b-col cols="6" md="6" sm="6">
             <b-form-group label="Cliente">
               <b-form-select v-model="rowSelected.iscliente" :options="ativoOpt" />
             </b-form-group>
+          </b-col>
+          <b-col cols="6" md="6" sm="6">
             <b-form-group label="Inbound">
               <b-form-select v-model="rowSelected.iscontato" :options="ativoOpt" />
             </b-form-group>
+          </b-col>
+        </b-row>
+        <b-row>
+          <b-col cols="12" md="12" sm="12">
             <b-form-group label="Ativo">
               <b-form-select v-model="rowSelected.ativo" :options="ativoOpt" />
             </b-form-group>
@@ -154,7 +217,7 @@
       </b-form>
     </b-modal>
     <!------------------------------------------------------------------------------------------------- Importar -->
-    <b-modal id="modal-importar" title="Importar" hide-footer @hide="registros()">
+    <b-modal id="modal-importar" title="Importar" hide-footer @hide="search()">
       <file-upload />
     </b-modal>
     <!------------------------------------------------------------------------------------------------- Excluir -->
@@ -218,10 +281,23 @@ export default {
           label: 'e-mail',
           tdClass: 'tbvertical'
         },
+        {
+          key: 'empresa',
+          sortable: true,
+          label: 'Empresa',
+          tdClass: 'tbvertical'
+        },
+        {
+          key: 'categorias.descricao',
+          sortable: true,
+          label: 'Categoria',
+          tdClass: 'tbvertical'
+        },
         { key: 'actions', label: 'Ação' }
       ],
       rowSelected: {},
       categoriasOpt: [],
+      categorias_fk: 0,
       fristPage: 0,
       lastPage: 0,
       Page: 1,
@@ -233,7 +309,7 @@ export default {
       this.$router.push('/')
     }
     this.categorias()
-    this.registros()
+    this.search()
   },
   methods: {
     // --------------------------------------------------------------------------------------  voltar
@@ -266,39 +342,6 @@ export default {
         }
       }
     },
-    // -------------------------------------------------------------------------------------- le registros
-    registros () {
-      this.showMsg = false
-      this.carregando = true
-      const url = this.url + '/' + this.$store.state.usuarioPerfil + '/' + this.$store.state.usuarioId + '?page=' + this.Page
-      this.$axios
-        .$get(url, {
-          headers: { Authorization: 'Bearer ' + this.$store.state.token }
-        })
-        .then((ret) => {
-          this.items = ret.data
-          this.totalRegistros = ret.total
-          this.fristPage = ret.form
-          this.lastPage = ret.last_page
-          this.carregando = false
-        })
-        .catch((error) => {
-          if (!error.response) {
-            this.mensagem = 'Erro ao conectar ao servidor backend.'
-            this.showMsg = true
-            this.carregando = false
-          }
-          if (error.response.status === 401) {
-            if (this.refreshToken()) {
-              this.registros()
-            }
-          } else {
-            this.carregando = false
-            this.mensagem = error
-            this.showMsg = true
-          }
-        })
-    },
     // -------------------------------------------------------------------------------------- novo
     novo () {
       this.mensagemAlert = ''
@@ -307,6 +350,10 @@ export default {
         id: 0,
         nome: '',
         email: '',
+        empresa: '',
+        posicao: '',
+        telefone: '',
+        cidade: '',
         usuarios_fk: this.$store.state.usuarioId,
         categorias_fk: null,
         iscliente: 0,
@@ -347,7 +394,7 @@ export default {
           })
           .then((ret) => {
             this.hideModal('modal-incluir')
-            this.registros()
+            this.search()
           })
           .catch((error) => {
             if (!error.response) {
@@ -376,7 +423,7 @@ export default {
             this.hideModal('modal-incluir')
             this.mensagemAlert = ''
             this.showAlert = false
-            this.registros()
+            this.search()
           })
           .catch((error) => {
             if (!error.response) {
@@ -408,7 +455,7 @@ export default {
           headers: { Authorization: 'Bearer ' + this.$store.state.token }
         })
         .then((ret) => {
-          this.registros()
+          this.search()
         })
         .catch((error) => {
           if (!error.response) {
@@ -429,29 +476,35 @@ export default {
     },
     // -------------------------------------------------------------------------------------- procurar
     search () {
-      if (this.procurar !== '') {
-        this.carregando = true
-        this.$axios
-          .$get(this.url + '-search' + '/' + this.$store.state.usuarioPerfil + '/' + this.$store.state.usuarioId + '?search=' + this.procurar, {
-            headers: { Authorization: 'Bearer ' + this.$store.state.token }
-          })
-          .then((ret) => {
-            this.items = ret
-            this.totalRegistros = ret.length
-            this.carregando = false
-          })
-          .catch((error) => {
-            if (error.response.status === 401) {
-              if (this.refreshToken()) {
-                this.search()
-              }
-            } else {
-              this.mensagem = error
-              this.showMsg = true
-            }
-            this.carregando = false
-          })
+      this.carregando = true
+      this.mensagem = ''
+      this.showMsg = false
+      const filtros = {
+        search: this.procurar,
+        categorias_fk: this.categorias_fk,
+        perfil: this.$store.state.usuarioPerfil,
+        idUsuario: this.$store.state.usuarioPerfil,
+        page: this.Page
       }
+      this.$axios.$post(this.url + '-search', filtros, { headers: { Authorization: 'Bearer ' + this.$store.state.token } })
+        .then((ret) => {
+          this.items = ret.data
+          this.totalRegistros = ret.total
+          this.fristPage = ret.form
+          this.lastPage = ret.last_page
+          this.carregando = false
+        })
+        .catch((error) => {
+          if (error.response.status === 401) {
+            if (this.refreshToken()) {
+              this.search()
+            }
+          } else {
+            this.mensagem = error
+            this.showMsg = true
+            this.carregando = false
+          }
+        })
     },
     // -------------------------------------------------------------------------------------- le categorias
     categorias () {

@@ -11,7 +11,7 @@
         <img src="~/assets/loading.gif" width="28px">
         <br><br>
       </div>
-      <p>Selecione o arquivo para importar no formato TXT ou CSV. A primeira coluna deve ser o Nome do Contato e a seguna coluna o email (Ex: Fulano,fulano@email.com'). Um (nome, email) por linha.</p>
+      <p>Selecione o arquivo para importar no formato TXT ou CSV com as seguintes colunas: nome, email, empresa, posição, telefone, cidade - separados por vírgula e delimitados com aspas.</p>
       <b-form-group label="Categoria">
         <b-form-select v-model="categorias_fk" :options="categoriasOpt" />
       </b-form-group>
