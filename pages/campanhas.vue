@@ -27,13 +27,6 @@
 
           <b-form-input v-model="procurar" type="text" />
 
-          <b-input-group-prepend>
-            <b-button variant="outline-info">
-              Categoria
-            </b-button>
-            <b-form-select v-model="categorias_fk" :options="categoriasOpt" @change="search()" />
-          </b-input-group-prepend>
-
           <b-input-group-append>
             <b-button
               variant="outline-secondary"
@@ -63,20 +56,6 @@
               "
             >
               X
-            </b-button>
-            <b-button
-              variant="outline-secondary"
-              title="Importar"
-              @click="importar()"
-            >
-              Importar
-            </b-button>
-            <b-button
-              variant="outline-secondary"
-              title="Exportar"
-              @click="exportar()"
-            >
-              Exportar
             </b-button>
           </b-input-group-append>
         </b-input-group>
@@ -112,101 +91,59 @@
       </b-table>
     </b-container>
     <!------------------------------------------------------------------------------------------------- Incluir  -->
-    <b-modal id="modal-incluir" size="lg" :title="pageName" hide-footer>
+    <b-modal id="modal-incluir" size="xl" :title="pageName" hide-footer>
       <div v-if="showAlert" style="padding-top:10px;">
         <b-alert v-model="showAlert" dismissible>
           {{ mensagemAlert }}
         </b-alert>
       </div>
       <b-form @submit="onSubmit">
-        <b-row>
-          <b-col cols="6" md="6" sm="6">
-            <b-form-group label="Nome">
-              <b-form-input
-                v-model="rowSelected.nome"
-                size="sm"
-                maxlength="80"
-              />
-            </b-form-group>
-          </b-col>
-          <b-col cols="6" md="6" sm="6">
-            <b-form-group label="email*">
-              <b-form-input
-                v-model="rowSelected.email"
-                required
-                maxlength="80"
-                size="sm"
-              />
-            </b-form-group>
-          </b-col>
-        </b-row>
-        <b-row>
-          <b-col cols="6" md="6" sm="6">
-            <b-form-group label="Empresa">
-              <b-form-input
-                v-model="rowSelected.empresa"
-                maxlength="120"
-                size="sm"
-              />
-            </b-form-group>
-          </b-col>
-          <b-col cols="6" md="6" sm="6">
-            <b-form-group label="Posição">
-              <b-form-input
-                v-model="rowSelected.posicao"
-                maxlength="120"
-                size="sm"
-              />
-            </b-form-group>
-          </b-col>
-        </b-row>
-        <b-row>
-          <b-col cols="6" md="6" sm="6">
-            <b-form-group label="Telefone">
-              <b-form-input
-                v-model="rowSelected.telefone"
-                maxlength="120"
-                size="sm"
-              />
-            </b-form-group>
-          </b-col>
-          <b-col cols="6" md="6" sm="6">
-            <b-form-group label="Cidade">
-              <b-form-input
-                v-model="rowSelected.cidade"
-                maxlength="120"
-                size="sm"
-              />
-            </b-form-group>
-          </b-col>
-        </b-row>
-        <b-row>
-          <b-col cols="12" md="12" sm="12">
-            <b-form-group label="Categoria">
-              <b-form-select v-model="rowSelected.categorias_fk" :options="categoriasOpt" />
-            </b-form-group>
-          </b-col>
-        </b-row>
-        <b-row>
-          <b-col cols="6" md="6" sm="6">
-            <b-form-group label="Cliente">
-              <b-form-select v-model="rowSelected.iscliente" :options="ativoOpt" />
-            </b-form-group>
-          </b-col>
-          <b-col cols="6" md="6" sm="6">
-            <b-form-group label="Inbound">
-              <b-form-select v-model="rowSelected.iscontato" :options="ativoOpt" />
-            </b-form-group>
-          </b-col>
-        </b-row>
-        <b-row>
-          <b-col cols="12" md="12" sm="12">
-            <b-form-group label="Ativo">
-              <b-form-select v-model="rowSelected.ativo" :options="ativoOpt" />
-            </b-form-group>
-          </b-col>
-        </b-row>
+        <b-tabs content-class="mt-3">
+          <!-- ---------------------------------------------------------------- TAB campanha-->
+          <b-tab title="Campanha" active>
+            <b-row>
+              <b-col cols="12" md="12" sm="12">
+                <b-form-group label="Título">
+                  <b-form-input
+                    v-model="rowSelected.titulo"
+                    size="sm"
+                    required
+                    maxlength="120"
+                  />
+                </b-form-group>
+              </b-col>
+            </b-row>
+            <b-row>
+              <b-col cols="12" md="12" sm="12">
+                <b-form-group label="Assunto">
+                  <b-form-input
+                    v-model="rowSelected.assunto"
+                    size="sm"
+                    required
+                    maxlength="120"
+                  />
+                </b-form-group>
+              </b-col>
+            </b-row>
+          </b-tab>
+          <!-- ---------------------------------------------------------------- TAB email-->
+          <b-tab title="Texto do Email">
+            <b-form-textarea
+              id="textarea"
+              v-model="rowSelected.emailhtml"
+              rows="20"
+              max-rows="20"
+            />
+          </b-tab>
+          <!-- ---------------------------------------------------------------- TAB lista de emails-->
+          <b-tab title="Lista de Emails">
+            <p>Lista dos Emails</p>
+          </b-tab>
+        </b-tabs>
         <div class="text-right">
+          <b-button v-if="rowSelected.emailhtml != ''" variant="warning" class="mt-3" @click="testEmail()">
+            Enviar Teste
+          </b-button>
           <b-button type="submit" class="mt-3" variant="primary">
             Salvar
           </b-button>
@@ -216,9 +153,9 @@
         </div>
       </b-form>
     </b-modal>
-    <!------------------------------------------------------------------------------------------------- Importar -->
-    <b-modal id="modal-importar" title="Importar" hide-footer @hide="search()">
-      <file-upload />
+    <!------------------------------------------------------------------------------------------------- Test Email -->
+    <b-modal id="modal-test" title="Testar Envio de Email" hide-footer>
+      <TestEmail :content="rowSelected.emailhtml" :assunto="rowSelected.assunto" />
     </b-modal>
     <!------------------------------------------------------------------------------------------------- Excluir -->
     <b-modal id="modal-excluir" title="Excluir" hide-footer>
@@ -244,18 +181,15 @@
 </template>
 
 <script>
-import * as XLSX from 'xlsx'
-import FileUpload from '@/components/FileUpload.vue'
+import TestEmail from '~/components/TestEmail.vue'
 
 export default {
-  name: 'OutboundPage',
-  components: {
-    FileUpload
-  },
+  name: 'CampanhasPage',
+  components: { TestEmail },
   data () {
     return {
-      pageName: 'Contatos - Outbound',
-      url: '/v1/outbound',
+      pageName: 'Campanhas - email Marketing',
+      url: '/v1/campanhas',
       procurar: '',
       mensagem: '',
       mensagemAlert: '',
@@ -263,41 +197,18 @@ export default {
       showAlert: true,
       carregando: true,
       totalRegistros: '',
-      ativoOpt: [
-        { value: 1, text: 'Sim' },
-        { value: 0, text: 'Não' }
-      ],
       items: [],
+      emailTest: '',
       fields: [
         {
-          key: 'nome',
+          key: 'titulo',
           sortable: true,
-          label: 'Nome',
-          tdClass: 'tbvertical'
-        },
-        {
-          key: 'email',
-          sortable: true,
-          label: 'e-mail',
-          tdClass: 'tbvertical'
-        },
-        {
-          key: 'empresa',
-          sortable: true,
-          label: 'Empresa',
-          tdClass: 'tbvertical'
-        },
-        {
-          key: 'categorias.descricao',
-          sortable: true,
-          label: 'Categoria',
+          label: 'Título',
           tdClass: 'tbvertical'
         },
         { key: 'actions', label: 'Ação' }
       ],
       rowSelected: {},
-      categoriasOpt: [],
-      categorias_fk: 0,
       fristPage: 0,
       lastPage: 0,
       Page: 1,
@@ -308,7 +219,6 @@ export default {
     if (this.$store.state.token === '') {
       this.$router.push('/')
     }
-    this.categorias()
     this.search()
   },
   methods: {
@@ -342,23 +252,19 @@ export default {
         }
       }
     },
+    // -------------------------------------------------------------------------------------- test email
+    testEmail () {
+      this.$root.$emit('bv::show::modal', 'modal-test', '#btnShow')
+    },
     // -------------------------------------------------------------------------------------- novo
     novo () {
       this.mensagemAlert = ''
       this.showAlert = false
       this.rowSelected = {
         id: 0,
-        nome: '',
-        email: '',
-        empresa: '',
-        posicao: '',
-        telefone: '',
-        cidade: '',
-        usuarios_fk: this.$store.state.usuarioId,
-        categorias_fk: null,
-        iscliente: 0,
-        iscontato: 0,
-        ativo: 1
+        titulo: '',
+        assunto: '',
+        emailhtml: ''
       }
       this.$root.$emit('bv::show::modal', 'modal-incluir', '#btnShow')
     },
@@ -374,24 +280,12 @@ export default {
       event.preventDefault()
       this.mensagemAlert = ''
       this.showAlert = false
-      const emails = this.rowSelected.email
-      const email = emails.split(';')
-      email.forEach((item) => {
-        if (!this.re.test(String(item).toLowerCase().trim())) {
-          this.mensagemAlert = 'Verifique o email informado.'
-          this.showAlert = true
-        }
-      })
-      if (this.showAlert) {
-        return
-      }
       this.mensagemAlert = 'Salvando...'
+      this.showAlert = true
       if (this.rowSelected.id === 0) {
         this.$axios
-          .$post(this.url, this.rowSelected, {
-            headers: { Authorization: 'Bearer ' + this.$store.state.token }
-          })
-          .then((ret) => {
+          .$post(this.url, this.rowSelected, { headers: { Authorization: 'Bearer ' + this.$store.state.token } })
+          .then(() => {
             this.hideModal('modal-incluir')
             this.search()
           })
@@ -406,7 +300,7 @@ export default {
                 this.onSubmit()
               }
             } else if (error.response.status === 404) {
-              this.mensagemAlert = 'Email já cadastrado. '
+              this.mensagemAlert = 'Título já existe. '
               this.showAlert = true
             } else {
               this.mensagemAlert = error
@@ -415,9 +309,7 @@ export default {
           })
       } else {
         this.$axios
-          .$put(this.url + '/' + this.rowSelected.id, this.rowSelected, {
-            headers: { Authorization: 'Bearer ' + this.$store.state.token }
-          })
+          .$put(this.url + '/' + this.rowSelected.id, this.rowSelected, { headers: { Authorization: 'Bearer ' + this.$store.state.token } })
           .then((ret) => {
             this.hideModal('modal-incluir')
             this.mensagemAlert = ''
@@ -482,7 +374,7 @@ export default {
         search: this.procurar,
         categorias_fk: this.categorias_fk,
         perfil: this.$store.state.usuarioPerfil,
-        idUsuario: this.$store.state.usuarioId,
+        idUsuario: this.$store.state.usuarioPerfil,
         page: this.Page
       }
       this.$axios.$post(this.url + '-search', filtros, { headers: { Authorization: 'Bearer ' + this.$store.state.token } })
@@ -504,67 +396,6 @@ export default {
             this.carregando = false
           }
         })
-    },
-    // -------------------------------------------------------------------------------------- le categorias
-    categorias () {
-      this.$axios.$get('/v1/categorias-all', { headers: { Authorization: 'Bearer ' + this.$store.state.token } })
-        .then((ret) => {
-          const data = []
-          ret.forEach((element) => {
-            const reg = {
-              value: element.id,
-              text: element.descricao
-            }
-            data.push(reg)
-          })
-          this.categoriasOpt = data
-          this.carregando = false
-        })
-        .catch((error) => {
-          if (error.response.status === 401) {
-            if (this.refreshToken()) {
-              this.usuarios()
-            }
-          } else {
-            this.mensagem = error
-            this.showMsg = true
-          }
-          this.carregando = false
-        })
-    },
-    // -------------------------------------------------------------------------------------- importar
-    importar () {
-      this.$root.$emit('bv::show::modal', 'modal-importar', '#btnShow')
-    },
-    // -------------------------------------------------------------------------------------- exportar
-    exportar () {
-      if (this.procurar !== '') {
-        const data = XLSX.utils.json_to_sheet(this.items)
-        const wb = XLSX.utils.book_new()
-        XLSX.utils.book_append_sheet(wb, data, 'data')
-        XLSX.writeFile(wb, this.pageName + '.xls')
-      } else {
-        this.$axios
-          .$get(this.url + '-all', {
-            headers: { Authorization: 'Bearer ' + this.$store.state.token }
-          })
-          .then((ret) => {
-            const data = XLSX.utils.json_to_sheet(ret)
-            const wb = XLSX.utils.book_new()
-            XLSX.utils.book_append_sheet(wb, data, 'data')
-            XLSX.writeFile(wb, this.pageName + '.xls')
-          })
-          .catch((error) => {
-            if (error.response.status === 401) {
-              if (this.refreshToken()) {
-                this.exportar()
-              }
-            } else {
-              this.mensagem = error
-              this.showMsg = true
-            }
-          })
-      }
     }
   } /* Fim Methods */
 } /* Fim export */
@@ -576,7 +407,7 @@ export default {
 }
 .scrollArea {
   width: 100%;
-  height: 74vh;
+  height: 55vh;
   overflow-x: hidden;
 
   padding-top: 20px;

@@ -21,14 +21,9 @@
             Outbound
           </b-nav-item>
 
-          <!-- <b-nav-item-dropdown v-if="usuarioPerfil == 1" right>
-            <template #button-content>
-              <em>Campanhas</em>
-            </template>
-            <b-dropdown-item href="/emails/editor" to="/emails/editor">
-              Editor de emails
-            </b-dropdown-item>
-          </b-nav-item-dropdown> -->
+          <b-nav-item href="/campanhas" to="/campanhas">
+            Campanhas
+          </b-nav-item>
 
           <b-nav-item-dropdown v-if="usuarioPerfil == 1" right>
             <!-- Using 'button-content' slot -->
