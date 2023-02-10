@@ -137,7 +137,7 @@
           </b-tab>
           <!-- ---------------------------------------------------------------- TAB lista de emails-->
           <b-tab title="Lista de Emails">
-            <p>Lista dos Emails</p>
+            <ListaEmails :idcampanha="rowSelected.id" />
           </b-tab>
         </b-tabs>
         <div class="text-right">
@@ -182,10 +182,11 @@
 
 <script>
 import TestEmail from '~/components/TestEmail.vue'
+import ListaEmails from '~/components/ListaEmails.vue'
 
 export default {
   name: 'CampanhasPage',
-  components: { TestEmail },
+  components: { TestEmail, ListaEmails },
   data () {
     return {
       pageName: 'Campanhas - email Marketing',
@@ -285,10 +286,6 @@ export default {
       if (this.rowSelected.id === 0) {
         this.$axios
           .$post(this.url, this.rowSelected, { headers: { Authorization: 'Bearer ' + this.$store.state.token } })
-          .then(() => {
-            this.hideModal('modal-incluir')
-            this.search()
-          })
           .catch((error) => {
             if (!error.response) {
               this.mensagemAlert = 'Erro ao conectar ao servidor backend.'
@@ -311,10 +308,8 @@ export default {
         this.$axios
           .$put(this.url + '/' + this.rowSelected.id, this.rowSelected, { headers: { Authorization: 'Bearer ' + this.$store.state.token } })
           .then((ret) => {
-            this.hideModal('modal-incluir')
             this.mensagemAlert = ''
             this.showAlert = false
-            this.search()
           })
           .catch((error) => {
             if (!error.response) {
