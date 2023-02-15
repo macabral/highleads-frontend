@@ -91,7 +91,7 @@
       </b-table>
     </b-container>
     <!------------------------------------------------------------------------------------------------- Incluir  -->
-    <b-modal id="modal-incluir" size="xl" :title="pageName" hide-footer>
+    <b-modal id="modal-incluir" size="xl" :title="pageName" hide-footer @hide="search()">
       <div v-if="showAlert" style="padding-top:10px;">
         <b-alert v-model="showAlert" dismissible>
           {{ mensagemAlert }}
@@ -205,6 +205,24 @@ export default {
           key: 'titulo',
           sortable: true,
           label: 'Título',
+          tdClass: 'tbvertical'
+        },
+        {
+          key: 'qtdemails',
+          sortable: true,
+          label: 'QTD Emails',
+          tdClass: 'tbvertical'
+        },
+        {
+          key: 'qtdvisitas',
+          sortable: true,
+          label: 'QTD Visitantes',
+          tdClass: 'tbvertical'
+        },
+        {
+          key: 'qtdcancelados',
+          sortable: true,
+          label: 'QTD Cancelados',
           tdClass: 'tbvertical'
         },
         { key: 'actions', label: 'Ação' }
@@ -397,21 +415,5 @@ export default {
 </script>
 
 <style>
-.tbvertical {
-  vertical-align: auto;
-}
-.scrollArea {
-  width: 100%;
-  height: 55vh;
-  overflow-x: hidden;
 
-  padding-top: 20px;
-  -ms-flex: 0 0 650px;
-  flex: 0 0 600px;
-  @media (max-width: 690px) {
-    .my-sidebar {
-      display: none;
-    }
-  }
-}
 </style>

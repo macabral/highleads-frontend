@@ -135,28 +135,4 @@ export default {
 </script>
 
 <style>
-.tbvertical {
-  vertical-align: auto;
-}
-.table {
-  font-size: 0.9em;
-  background-color: white;
-}
-.center-text {
-  text-align: center;
-}
-.scrollArea {
-  width: 100%;
-  height: 74vh;
-  overflow-x: hidden;
-
-  padding-top: 20px;
-  -ms-flex: 0 0 650px;
-  flex: 0 0 600px;
-  @media (max-width: 690px) {
-    .my-sidebar {
-      display: none;
-    }
-  }
-}
 </style>

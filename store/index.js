@@ -3,7 +3,9 @@ export const state = () => ({
   usuarioEmail: '',
   usuarioNome: '',
   usuarioPerfil: 0,
-  token: ''
+  token: '',
+  nomeEmpresa: '',
+  siteEmpresa: ''
 })
 
 export const mutations = {
@@ -21,5 +23,11 @@ export const mutations = {
   },
   token (state, value) {
     state.token = value
+  },
+  nomeEmpresa (state, value) {
+    state.nomeEmpresa = value
+  },
+  siteEmpresa (state, value) {
+    state.nomeEmpresa = value
   }
 }

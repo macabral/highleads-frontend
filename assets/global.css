@@ -8,11 +8,7 @@ html {
     display: block;
     background-color:lightsteelblue;
     padding: 10px;
-    border-radius: 3px;
-    color: white;
-}
-.qrcode {
-    background-color: rgba(195, 147, 251, 0.863);
+    border-radius: 4px;
     color: white;
 }
 
@@ -20,4 +16,36 @@ html {
     height: 100vh;
     background-image: url("../assets/background-1.jpg");
     background-size: 100% 100%;
+}
+
+.tbvertical {
+  vertical-align: auto;
+}
+.tbcenter {
+  vertical-align: center;
+  text-align: center;
+}
+
+.scrollArea {
+  width: 100%;
+  height: 74vh;
+  overflow-x: hidden;
+
+  padding-top: 20px;
+  -ms-flex: 0 0 650px;
+  flex: 0 0 600px;
+  @media (max-width: 690px) {
+    .my-sidebar {
+      display: none;
+    }
   }
+}
+
+.table {
+  font-size: 0.9em;
+  background-color: white;
+}
+
+.center-text {
+  text-align: center;
+}

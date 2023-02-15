@@ -222,6 +222,7 @@ export default {
           }
         })
     },
+    // -------------------------------------------------------------------------------------- Filtrar os emails
     incluirEmails () {
       this.mensagem = 'Inserindo emails na Campanha...'
       this.showMsg = true
@@ -248,6 +249,7 @@ export default {
               this.carregando = false
             }
           } else {
+            console.log(error)
             this.mensagem = error
             this.showMsg = true
             this.carregando = false

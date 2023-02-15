@@ -4,7 +4,7 @@
       <b-button class="mr-2" @click="incluir()">
         Incluir Emails
       </b-button>
-      <b-button v-if="items.length > 0" class="mr-2" @click="excluir()">
+      <b-button v-if="items.length > 0" class="mr-2" variant="danger" @click="excluir()">
         Limpar Lista
       </b-button>
       <div v-if="showMsg" style="padding-top: 10px">

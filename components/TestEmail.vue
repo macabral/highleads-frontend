@@ -85,6 +85,7 @@ export default {
         if (this.nome !== '') {
           assunto = assunto.replaceAll('[NOME]', this.nome)
           content = content.replaceAll('[NOME]', this.nome)
+          content = content.replaceAll('[UNIQUEID]', 'XYFTSREREESESE')
         }
         const send = {
           para: this.emailDestino,

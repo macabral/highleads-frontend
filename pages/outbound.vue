@@ -200,9 +200,14 @@
           </b-col>
         </b-row>
         <b-row>
-          <b-col cols="12" md="12" sm="12">
+          <b-col cols="6" md="6" sm="6">
             <b-form-group label="Ativo">
               <b-form-select v-model="rowSelected.ativo" :options="ativoOpt" />
+            </b-form-group>
+          </b-col>
+          <b-col cols="6" md="6" sm="6">
+            <b-form-group label="Validado?">
+              <b-form-select v-model="rowSelected.isvalid" :options="ativoOpt" />
             </b-form-group>
           </b-col>
         </b-row>
@@ -293,6 +298,20 @@ export default {
           label: 'Categoria',
           tdClass: 'tbvertical'
         },
+        {
+          key: 'isvalid',
+          sortable: true,
+          label: 'Validado',
+          tdClass: 'tbvertical',
+          formatter: 'ativoData'
+        },
+        {
+          key: 'ativo',
+          sortable: true,
+          label: 'Ativo',
+          tdClass: 'tbvertical',
+          formatter: 'ativoData'
+        },
         { key: 'actions', label: 'Ação' }
       ],
       rowSelected: {},
@@ -322,7 +341,7 @@ export default {
     },
     // --------------------------------------------------------------------------------------  Ativo/Inativo
     ativoData (value) {
-      if (value === '1') {
+      if (value === 1) {
         return 'Sim'
       } else {
         return 'Não'
@@ -358,7 +377,8 @@ export default {
         categorias_fk: null,
         iscliente: 0,
         iscontato: 0,
-        ativo: 1
+        ativo: 1,
+        isvalid: 0
       }
       this.$root.$emit('bv::show::modal', 'modal-incluir', '#btnShow')
     },
@@ -371,18 +391,20 @@ export default {
     },
     // -------------------------------------------------------------------------------------- salvar
     onSubmit (event) {
+      this.mensagemAlert = 'Salvando...'
+      this.showAlert = true
       event.preventDefault()
-      this.mensagemAlert = ''
-      this.showAlert = false
       const emails = this.rowSelected.email
       const email = emails.split(';')
+      let erro = false
       email.forEach((item) => {
         if (!this.re.test(String(item).toLowerCase().trim())) {
           this.mensagemAlert = 'Verifique o email informado.'
           this.showAlert = true
+          erro = true
         }
       })
-      if (this.showAlert) {
+      if (erro) {
         return
       }
       this.mensagemAlert = 'Salvando...'
@@ -571,21 +593,4 @@ export default {
 </script>
 
 <style>
-.tbvertical {
-  vertical-align: auto;
-}
-.scrollArea {
-  width: 100%;
-  height: 74vh;
-  overflow-x: hidden;
-
-  padding-top: 20px;
-  -ms-flex: 0 0 650px;
-  flex: 0 0 600px;
-  @media (max-width: 690px) {
-    .my-sidebar {
-      display: none;
-    }
-  }
-}
 </style>
