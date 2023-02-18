@@ -17,7 +17,7 @@
       </div>
       <h3>Site/Status</h3>
       <b-row>
-        <b-col cols="6">
+        <b-col cols="12">
           <b-table
             v-if="!carregando"
             responsive

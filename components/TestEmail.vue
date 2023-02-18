@@ -83,9 +83,9 @@ export default {
         let assunto = this.emailAssunto
         let content = this.emailContent
         if (this.nome !== '') {
-          assunto = assunto.replaceAll('[NOME]', this.nome)
-          content = content.replaceAll('[NOME]', this.nome)
-          content = content.replaceAll('[UNIQUEID]', 'XYFTSREREESESE')
+          assunto = assunto.replaceAll('[CONTATO_NOME]', this.nome)
+          content = content.replaceAll('[CONTATO_NOME]', this.nome)
+          content = content.replaceAll('[UNIQUEID]', '5KqFFNJdIMORyCG4VwGe2ZVxnB5hI9c')
         }
         const send = {
           para: this.emailDestino,

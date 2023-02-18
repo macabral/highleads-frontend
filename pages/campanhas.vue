@@ -120,9 +120,18 @@
                     v-model="rowSelected.assunto"
                     size="sm"
                     required
-                    maxlength="120"
+                    maxlength="200"
                   />
                 </b-form-group>
+              </b-col>
+            </b-row>
+            <label for="example-i18n-picker">Agendar envio para:</label>
+            <b-row>
+              <b-col cols="4" md="4" sm="4">
+                <b-form-datepicker id="example-datepicker" v-model="rowSelected.dtenvio" class="mb-2" />
+              </b-col>
+              <b-col cols="4" md="4" sm="4">
+                <b-form-timepicker v-model="rowSelected.hrenvio" now-button locale="pt-BR" />
               </b-col>
             </b-row>
           </b-tab>
@@ -141,6 +150,9 @@
           </b-tab>
         </b-tabs>
         <div class="text-right">
+          <b-button v-if="rowSelected.emailhtml != '' && rowSelected.qtdemails > 0 && rowSelected.dtenvio != null && rowSelected.hrenvio != null && rowSelected.enviado == 0" variant="secondary" class="mt-3" @click="distribuir()">
+            Iniciar Distribuição
+          </b-button>
           <b-button v-if="rowSelected.emailhtml != ''" variant="warning" class="mt-3" @click="testEmail()">
             Enviar Teste
           </b-button>
@@ -165,15 +177,25 @@
         <b>{{ rowSelected.pagina }}</b>
       </p>
       <div class="text-right">
-        <b-button
-          class="mt-3"
-          variant="primary"
-          @click="excluirItem(rowSelected.id)"
-        >
+        <b-button class="mt-3" variant="primary" @click="excluirItem(rowSelected.id)">
           Excluir
         </b-button>
         <b-button class="mt-3" @click="hideModal('modal-excluir')">
           Cancelar
+        </b-button>
+      </div>
+    </b-modal>
+    <!------------------------------------------------------------------------------------------------- Distribuir -->
+    <b-modal id="modal-distribuir" title="Iniciar Distribuição" hide-footer>
+      <p>
+        Confirma iniciar a distribuição de emails?
+      </p>
+      <div class="text-right">
+        <b-button class="mt-3" variant="primary" @click="distribuirEmails()">
+          Sim
+        </b-button>
+        <b-button class="mt-3" @click="hideModal('modal-distribuir')">
+          Não
         </b-button>
       </div>
     </b-modal>
@@ -216,7 +238,7 @@ export default {
         {
           key: 'qtdvisitas',
           sortable: true,
-          label: 'QTD Visitantes',
+          label: 'QTD Leads',
           tdClass: 'tbvertical'
         },
         {
@@ -271,6 +293,36 @@ export default {
         }
       }
     },
+    // -------------------------------------------------------------------------------------- distribuir emails
+    distribuir () {
+      this.$root.$emit('bv::show::modal', 'modal-distribuir', '#btnShow')
+    },
+    distribuirEmails () {
+      this.mensagemAlert = 'Iniciando distribuição...'
+      this.showAlert = true
+      this.hideModal('modal-distribuir')
+      this.$axios.$get('/v1/campanhas-distribuir/' + this.rowSelected.id, { headers: { Authorization: 'Bearer ' + this.$store.state.token } })
+        .then((ret) => {
+          this.mensagemAlert = 'Distribuição iniciada!'
+          this.showAlert = true
+        })
+        .catch((error) => {
+          if (!error.response) {
+            this.mensagemAlert = 'Erro ao conectar ao servidor backend.'
+            this.showAlert = true
+            this.carregando = false
+          }
+          if (error.response.status === 401) {
+            if (this.refreshToken()) {
+              this.excluirItem()
+            }
+          } else {
+            this.mensagemAlert = error
+            this.showAlert = true
+          }
+        })
+      this.carregando = false
+    },
     // -------------------------------------------------------------------------------------- test email
     testEmail () {
       this.$root.$emit('bv::show::modal', 'modal-test', '#btnShow')
@@ -283,7 +335,9 @@ export default {
         id: 0,
         titulo: '',
         assunto: '',
-        emailhtml: ''
+        emailhtml: '',
+        dtenvio: null,
+        hrenvio: null
       }
       this.$root.$emit('bv::show::modal', 'modal-incluir', '#btnShow')
     },
@@ -304,6 +358,10 @@ export default {
       if (this.rowSelected.id === 0) {
         this.$axios
           .$post(this.url, this.rowSelected, { headers: { Authorization: 'Bearer ' + this.$store.state.token } })
+          .then(() => {
+            this.mensagemAlert = 'Salvando...'
+            this.showAlert = false
+          })
           .catch((error) => {
             if (!error.response) {
               this.mensagemAlert = 'Erro ao conectar ao servidor backend.'
