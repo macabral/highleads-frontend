@@ -1,10 +1,10 @@
 <template>
   <div>
     <b-container fluid>
-      <b-button class="mr-2" @click="incluir()">
+      <b-button v-if="!ativo" class="mr-2" @click="incluir()">
         Incluir Emails
       </b-button>
-      <b-button v-if="items.length > 0" class="mr-2" variant="danger" @click="excluir()">
+      <b-button v-if="items.length > 0 && !ativo" class="mr-2" variant="danger" @click="excluir()">
         Limpar Lista
       </b-button>
       <div v-if="showMsg" style="padding-top: 10px">
@@ -28,7 +28,7 @@
         :fields="fields"
       >
         <template #cell(actions)="data">
-          <b-button size="sm" variant="danger" @click="deleteEmail(data.item.id)">
+          <b-button v-if="!ativo" size="sm" variant="danger" @click="deleteEmail(data.item.id)">
             Excluir
           </b-button>
         </template>
@@ -67,7 +67,8 @@ export default {
   components: { IncluirEmails },
   props: {
     // eslint-disable-next-line vue/require-default-prop
-    idcampanha: Number
+    idcampanha: Number,
+    ativo: Boolean
   },
   data () {
     return {

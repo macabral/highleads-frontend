@@ -146,11 +146,11 @@
           </b-tab>
           <!-- ---------------------------------------------------------------- TAB lista de emails-->
           <b-tab title="Lista de Emails">
-            <ListaEmails :idcampanha="rowSelected.id" />
+            <ListaEmails :idcampanha="rowSelected.id" :ativo="campanhaAtiva" />
           </b-tab>
         </b-tabs>
         <div class="text-right">
-          <b-button v-if="rowSelected.emailhtml != '' && rowSelected.qtdemails > 0 && rowSelected.dtenvio != null && rowSelected.hrenvio != null && rowSelected.enviado == 0" variant="secondary" class="mt-3" @click="distribuir()">
+          <b-button v-if="!campanhaAtiva" variant="secondary" class="mt-3" @click="distribuir()">
             Iniciar Distribuição
           </b-button>
           <b-button v-if="rowSelected.emailhtml != ''" variant="warning" class="mt-3" @click="testEmail()">
@@ -247,12 +247,19 @@ export default {
           label: 'QTD Cancelados',
           tdClass: 'tbvertical'
         },
+        {
+          key: 'enviado',
+          sortable: true,
+          label: 'Distribuido',
+          formatter: 'ativoData'
+        },
         { key: 'actions', label: 'Ação' }
       ],
       rowSelected: {},
       fristPage: 0,
       lastPage: 0,
       Page: 1,
+      campanhaAtiva: false,
       re: /^(?=[a-zA-Z0-9@._%+-]{6,254}$)[a-zA-Z0-9._%+-]{1,64}@(?:[a-zA-Z0-9-]{1,63}\.){1,8}[a-zA-Z]{2,63}$/
     }
   },
@@ -346,6 +353,11 @@ export default {
       this.showAlert = false
       this.showMsg = false
       this.rowSelected = item
+      if (this.rowSelected.emailhtml !== '' && this.rowSelected.qtdemails > 0 && this.rowSelected.dtenvio !== null && this.rowSelected.hrenvio !== null && this.rowSelected.enviado === 0) {
+        this.campanhaAtiva = false
+      } else {
+        this.campanhaAtiva = true
+      }
       this.$root.$emit('bv::show::modal', 'modal-incluir', '#btnShow')
     },
     // -------------------------------------------------------------------------------------- salvar

@@ -28,7 +28,7 @@
           <b-nav-item-dropdown v-if="usuarioPerfil == 1" right>
             <!-- Using 'button-content' slot -->
             <template #button-content>
-              <em>Cadastros</em>
+              <em>Administração</em>
             </template>
             <b-dropdown-item href="/cadastros/categorias" to="/cadastros/categorias">
               Categorias
